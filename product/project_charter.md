@@ -228,7 +228,7 @@ Change control: any change to R1 to R6, the stack in section 8, or the success c
 | P4 | Icon and cursor licensing | **Resolved in part**: icons must be open-source. Record the source and licence for each icon set and cursor. Do not copy Microsoft assets | At M3 | Developer |
 | P5 | Sort rule | **Resolved**: newest first. Year-only dates are allowed. Overlapping roles are all displayed | Done | Wamae Benson |
 | P6 | Industries per project | **Resolved**: one industry per project. The data model may be widened later | Done | Wamae Benson |
-| P7 | Re-check exact GitHub Action tags (`withastro/action`, `actions/deploy-pages`, `actions/checkout`) and move to Node 26 once it is LTS (2026-10-28) | Verification | At M2 | Developer |
+| P7 | GitHub Action tags: **resolved at M2** (verified and recorded in the dependency register). Still open: move to Node 26 once it is LTS (2026-10-28) | Verification | At Node 26 LTS | Developer |
 | P9 | Existing `img/` assets and template `LICENSE` | **Resolved**: delete all existing files. A licence for the new work is recommended at M8 | At M2 and M8 | Developer |
 | P10 | Name and email | **Resolved**: configurable in an env file. The CV summary is rewritten in the first person unless the owner objects | Done | Developer |
 | P11 | Industry per project: the CV gives employer context (fintech, banking, staffing, IoT, agriculture) but no industry tag per entry, and no agriculture role is listed. Confirm the industry for each project and employer | Decision | Before M5 | Wamae Benson |
