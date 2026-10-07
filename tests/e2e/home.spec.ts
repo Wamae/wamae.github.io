@@ -11,7 +11,7 @@ test("home page loads with a skip link and the owner name", async ({ page }) => 
   await page.keyboard.press("Tab");
   const skipLink = page.getByRole("link", { name: "Skip to main content" });
   await expect(skipLink).toBeFocused();
-  await expect(skipLink).toBeVisible();
+  await expect(skipLink).toBeInViewport();
 });
 
 test("skip link activated with Enter jumps to the main content", async ({ page }) => {
