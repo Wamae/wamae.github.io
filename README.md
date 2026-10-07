@@ -38,6 +38,18 @@ The build fails if either value is missing, empty, malformed or still the placeh
 | `npm run test:e2e` | End-to-end tests (Playwright, Chromium, `tests/e2e/`). Builds and serves the production site itself. First run needs `npx playwright install chromium` |
 | `npm test` | Unit, integration and end-to-end tests |
 
+## Structure
+
+| Folder | Holds |
+|---|---|
+| `src/styles/` | `tokens.css` (VGA palette and semantic tokens) and `global.css` |
+| `src/design/` | Contrast maths and the approved colour pairs, with unit tests |
+| `src/components/` | Design-system components (window, panel, button, menu bar, status bar, program icon, icon) |
+| `src/shell/` | The desktop: Program Manager, File Manager and content windows, built from a small data model |
+| `src/assets/` | Self-hosted font and icons with their licences |
+
+Approved text and background colour pairs are listed in `src/design/approved-colour-pairs.ts`, and a test checks their contrast.
+
 ## Deploy
 
 A push to `main` (or a manual run of the Deploy workflow) runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages.

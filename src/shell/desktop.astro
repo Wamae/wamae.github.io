@@ -1,0 +1,58 @@
+---
+import ContentWindows from "./content-windows.astro";
+import FileManager from "./file-manager.astro";
+import ProgramManager from "./program-manager.astro";
+
+interface Props {
+  ownerName: string;
+}
+const { ownerName } = Astro.props;
+---
+
+<header class="caption">
+  <h1>{ownerName}</h1>
+  <p>Personal site. The content on this page is placeholder text.</p>
+</header>
+<main id="main" class="desktop">
+  <div class="area program-manager">
+    <ProgramManager />
+  </div>
+  <div class="area file-manager">
+    <FileManager />
+  </div>
+  <div class="area content">
+    <ContentWindows />
+  </div>
+</main>
+
+<style>
+  .caption {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-4) 0;
+  }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  .desktop {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: var(--space-4);
+  }
+  .area {
+    min-width: 0;
+  }
+  @media (min-width: 62rem) {
+    .desktop {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      align-items: start;
+    }
+    .content {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

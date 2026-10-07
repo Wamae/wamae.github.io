@@ -34,7 +34,7 @@ describe("production build", () => {
 
     const html = await readFile(join(outDir, "index.html"), "utf8");
     expect(html).toContain("<title>Integration Owner</title>");
-    expect(html).toContain("<h1>Integration Owner</h1>");
+    expect(html).toMatch(/<h1[^>]*>Integration Owner<\/h1>/);
     expect(html).toMatch(/<html lang="en"/);
   });
 
