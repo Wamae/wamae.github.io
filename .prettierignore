@@ -4,7 +4,6 @@ node_modules
 package-lock.json
 product
 engineering
-*.astro
 *.md
 .claude
 .github/pull_request_template.md
