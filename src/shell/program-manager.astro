@@ -1,0 +1,48 @@
+---
+import MenuBar from "../components/menu-bar.astro";
+import ProgramIcon from "../components/program-icon.astro";
+import Window from "../components/window.astro";
+import { programGroups } from "./desktop-model";
+---
+
+<Window id="program-manager" title="Program Manager" active>
+  <MenuBar slot="menu" items={["File", "Options", "Window", "Help"]} />
+  <div class="workspace">
+    {programGroups.map((group) => (
+      <Window
+        id={group.id}
+        title={group.title}
+        headingLevel={3}
+        landmark={false}
+        active={group.id === programGroups[0]?.id}
+      >
+        <ul class="icons">
+          {group.items.map((item) => (
+            <li>
+              <ProgramIcon label={item.label} href={item.href} icon={item.icon} />
+            </li>
+          ))}
+        </ul>
+      </Window>
+    ))}
+  </div>
+</Window>
+
+<style>
+  .workspace {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: var(--space-3);
+    margin: calc(var(--space-3) * -1);
+    padding: var(--space-3);
+    background: var(--color-workspace);
+  }
+  .icons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+</style>

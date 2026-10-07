@@ -1,0 +1,27 @@
+---
+import Button from "../components/button.astro";
+import Window from "../components/window.astro";
+import { contentSections, plainContentId } from "./desktop-model";
+---
+
+<div id={plainContentId} class="content-windows">
+  {contentSections.map((section) => (
+    <Window id={section.id} title={section.title}>
+      <p>{section.placeholder}</p>
+      <p class="back">
+        <Button href="#program-manager">Back to Program Manager</Button>
+      </p>
+    </Window>
+  ))}
+</div>
+
+<style>
+  .content-windows {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--space-4);
+  }
+  .back {
+    margin-top: var(--space-4);
+  }
+</style>
