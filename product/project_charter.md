@@ -113,7 +113,7 @@ The project replaces it with a distinctive personal site. The site presents Wama
 | Astro | 7.3.6 (`npm` registry `latest`, requires Node >= 22.12.0) | npm registry, checked 2026-10-07. A web-search summary listed 6.1.10 and 7.0.0, which the registry superseded |
 | TypeScript | 6.0.3 pinned at M2 (7.0.2 is `latest`, but `typescript-eslint` and `@astrojs/check` do not support it yet, see the register) | npm registry, checked 2026-10-07. TypeScript 7.0 is the Go-native compiler, released 2026-07-08 per web sources. TypeScript 6.0 (2026-03-23) is the fallback if an Astro or editor-tooling incompatibility appears |
 | Node.js | 24.x "Krypton" Active LTS (maintenance from 2026-10-20). Node 26.x becomes Active LTS on 2026-10-28 | Web search, checked 2026-10-07. Use Node 24 in CI now, and move to 26 after it enters LTS and passes the build |
-| GitHub Actions | `actions/checkout` v7.0.1, `actions/setup-node` v7.0.0, `actions/configure-pages` v6.0.0, `actions/upload-pages-artifact` v5.0.0, `actions/deploy-pages` v5.0.1 (`withastro/action` rejected) | `gh api` latest releases, checked 2026-10-07 at M2. See the dependency register |
+| GitHub Actions | `actions/checkout` v7.0.1, `actions/setup-node` v7.0.0, `actions/upload-pages-artifact` v5.0.0, `actions/deploy-pages` v5.0.1 (`withastro/action` rejected) | `gh api` latest releases, checked 2026-10-07 at M2. See the dependency register |
 | Animation and graphics | CSS, Web Animations API, Canvas 2D (browser built-ins, no package) | Stable web platform features, no version to pin |
 
 **Technology decision (R3): confirmed, with refinements**
