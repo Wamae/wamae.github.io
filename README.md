@@ -46,6 +46,7 @@ The build fails if either value is missing, empty, malformed or still the placeh
 | `src/design/` | Contrast maths and the approved colour pairs, with unit tests |
 | `src/components/` | Design-system components (window, panel, button, menu bar, status bar, program icon, icon) and the desktop parts (desktop icon, taskbar, Start menu, browser window) |
 | `src/layouts/` | The desktop layout every page uses |
+| `src/content/` | The profile data file, its validator, sorting and grouping, and the section views |
 | `src/pages/` | One static page per route: `/`, `/about/`, `/experience/`, `/projects/`, `/contact/`, `/program-manager/`, `/file-manager/` |
 | `src/shell/` | The section model, Program Manager and File Manager, and the pure logic (address bar URL, Start menu keys, history). `src/shell/client/` is the small browser script |
 | `src/assets/` | Self-hosted font and icons with their licences |
@@ -62,7 +63,16 @@ After the desktop appears, each section (About Me, Work Experience, Projects, Co
 - Desktop icons are real links. Without JavaScript a single click opens them. With JavaScript a single click of a real mouse selects an icon, and a second click on the selected icon (a double click) opens it. Events that do not come from a mouse (the keyboard, touch, pen, or a plain script `click()`) open it at once. Assistive technology or voice control that emulates a real mouse reports a mouse pointer too, so it needs a second click, or Enter, to open an icon.
 - Back and Forward in the browser window follow the entries the window opened. The number of entries is kept in session storage, so Forward still works after a reload in the middle of the history. If storage is blocked, Forward shows disabled after a reload, although the browser's own forward button works.
 - The site is served from the root of its origin, so `site` in `astro.config.mjs` must not have a base path.
-- All section text is placeholder text for now.
+
+## Editing the content
+
+All CV content is in one data file, `src/content/profile.json`: the headline, summary (first person), key skills, roles, projects, education, certifications and links. Change it there and the pages follow, with no template edits. The owner name and email still come from `.env`.
+
+- **Roles** have an `id`, `employer`, `title`, a `period` (`start` and `end`, each `"2012"` or `"2012-03"`; use `"end": null` for a role that is still going) and optional `description` and `highlights`.
+- **Projects** have an `id`, the `roleId` of their role, a `title`, exactly one `industry` from the fixed list (Fintech, Banking, Staffing, IoT, Public sector / data collection), a `description` and optional `results`. A project takes the period of its role unless it has its own `period`.
+- **Order** is never set by hand. Roles and projects are sorted newest first in code: later end date first (an ongoing role is newest), then later start date. Entries with the same period keep the order of the data file, so write the projects of a role in the order you want them shown. A year-only start counts as January and a year-only end as December. Overlapping roles are all shown.
+- **Results are percentages only.** A text field fails the build if it holds a currency symbol (any Unicode currency sign), a currency code in its own case such as USD or KES (also when it touches digits, as in USD500), "Sh" or "Shs" before an amount, "/=" after an amount, or a currency name as a whole word (dollars, shillings, euros, pounds, naira, rupees). Invisible characters are ignored when checking. Percentages and multiples such as 3X are fine.
+- **Validation** runs on every build. It fails with one message that lists every problem: unknown role id, unknown industry, bad date, empty field, duplicate id, a project without exactly one industry, currency, or a link that is not https.
 
 ## Deploy
 

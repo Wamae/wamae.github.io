@@ -190,9 +190,7 @@ test("without JavaScript every route shows its content and the Start menu links 
     .click();
   await expect(page).toHaveURL(/\/projects\/$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projects");
-  await expect(
-    page.getByText("Projects by industry: content arrives in a later milestone."),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "By industry" })).toBeVisible();
   await context.close();
 });
 

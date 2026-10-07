@@ -1,0 +1,70 @@
+---
+import type { Profile } from "..";
+
+// About Me: the summary, key skills, education and certifications.
+interface Props {
+  profile: Profile;
+}
+const { profile } = Astro.props;
+---
+
+<p class="headline">{profile.headline}</p>
+{profile.summary.map((paragraph) => (
+  <p>{paragraph}</p>
+))}
+
+<section aria-labelledby="skills-title">
+  <h2 id="skills-title">Key skills</h2>
+  <ul>
+    {profile.keySkills.map((skill) => (
+      <li>{skill}</li>
+    ))}
+  </ul>
+</section>
+
+<section aria-labelledby="education-title">
+  <h2 id="education-title">Education</h2>
+  <ul>
+    {profile.education.map((entry) => (
+      <li>
+        <strong>{entry.institution}</strong>
+        <br />
+        {entry.qualification}
+      </li>
+    ))}
+  </ul>
+</section>
+
+<section aria-labelledby="certifications-title">
+  <h2 id="certifications-title">Certifications</h2>
+  <ul>
+    {profile.certifications.map((certification) => (
+      <li>
+        {certification.url === undefined ? (
+          certification.name
+        ) : (
+          <a href={certification.url}>{certification.name}</a>
+        )}
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .headline {
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+  section {
+    display: grid;
+    gap: var(--space-2);
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  ul {
+    padding-left: var(--space-4);
+    display: grid;
+    gap: var(--space-1);
+  }
+</style>

@@ -1,0 +1,40 @@
+---
+import type { ProfileLink } from "..";
+
+// Contact: the email from the site configuration, and the public profile links.
+interface Props {
+  email: string;
+  links: readonly ProfileLink[];
+}
+const { email, links } = Astro.props;
+---
+
+<p>
+  Email: <a href={`mailto:${email}`}>{email}</a>
+</p>
+
+<section aria-labelledby="links-title">
+  <h2 id="links-title">Elsewhere online</h2>
+  <ul>
+    {links.map((link) => (
+      <li>
+        <a href={link.url}>{link.label}</a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  section {
+    display: grid;
+    gap: var(--space-2);
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  ul {
+    padding-left: var(--space-4);
+    display: grid;
+    gap: var(--space-1);
+  }
+</style>

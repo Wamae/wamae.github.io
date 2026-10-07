@@ -2,11 +2,15 @@
 import DesktopLayout from "../layouts/desktop-layout.astro";
 import SectionContent from "../shell/section-content.astro";
 import { contentSections } from "../shell/section-model";
+import AboutView from "../content/views/about-view.astro";
+import { getProfile } from "../content";
 
 const section = contentSections.find((candidate) => candidate.id === "about");
 if (section === undefined) throw new Error("Missing section: about");
 ---
 
 <DesktopLayout section={section}>
-  <SectionContent section={section} />
+  <SectionContent section={section}>
+    <AboutView profile={getProfile()} />
+  </SectionContent>
 </DesktopLayout>
