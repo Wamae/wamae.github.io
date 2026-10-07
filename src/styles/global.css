@@ -1,0 +1,146 @@
+/* Base styles: fonts, page, focus ring and the NT-style scroll bar. Colours come from tokens.css. */
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/pixelify-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/pixelify-sans-latin-700-normal.woff2") format("woff2");
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-desktop);
+  color: var(--color-desktop-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-ui);
+  overflow-wrap: anywhere;
+  /* The font draws "fi" badly as a ligature. */
+  font-variant-ligatures: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul {
+  margin: 0;
+}
+
+a {
+  color: var(--color-link);
+}
+
+/* NT-style focus ring: a dotted outline. Never removed, only restyled. */
+:focus-visible {
+  outline: 2px dotted var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Nothing animates in this milestone. This keeps it true when animation arrives later. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* NT 3.1 style scroll bar. Chromium and Safari use the pseudo-elements, Firefox uses the properties. */
+.nt-scroll {
+  overflow: auto;
+}
+
+.nt-scroll::-webkit-scrollbar {
+  width: 1rem;
+  height: 1rem;
+}
+
+.nt-scroll::-webkit-scrollbar-track {
+  background-image: repeating-conic-gradient(
+    var(--color-window-face) 0% 25%,
+    var(--color-bevel-highlight) 0% 50%
+  );
+  background-size: 2px 2px;
+}
+
+.nt-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--color-button-face);
+  border: 1px solid var(--color-window-frame);
+  box-shadow: var(--bevel-raised);
+}
+
+.nt-scroll::-webkit-scrollbar-button:single-button {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--color-button-face);
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 1px solid var(--color-window-frame);
+  box-shadow: var(--bevel-raised);
+}
+
+.nt-scroll::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: conic-gradient(
+    from 135deg at 50% 0,
+    var(--color-button-text) 90deg,
+    transparent 0
+  );
+  background-size: 8px 4px;
+}
+
+.nt-scroll::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: conic-gradient(
+    from -45deg at 50% 100%,
+    var(--color-button-text) 90deg,
+    transparent 0
+  );
+  background-size: 8px 4px;
+}
+
+.nt-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement {
+  background-image: conic-gradient(
+    from 225deg at 100% 50%,
+    var(--color-button-text) 90deg,
+    transparent 0
+  );
+  background-size: 4px 8px;
+}
+
+.nt-scroll::-webkit-scrollbar-button:single-button:horizontal:increment {
+  background-image: conic-gradient(
+    from 45deg at 0 50%,
+    var(--color-button-text) 90deg,
+    transparent 0
+  );
+  background-size: 4px 8px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .nt-scroll {
+    scrollbar-color: var(--color-bevel-shadow) var(--color-window-face);
+  }
+}
