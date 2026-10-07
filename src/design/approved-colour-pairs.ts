@@ -22,7 +22,7 @@ export interface ColourPair {
 }
 
 /**
- * The only colour pairs the page may use for text and focus rings.
+ * The only colour pairs the page may use for text, borders, focus rings and scroll bars.
  * Anything else, such as dark gray text on light gray, fails contrast and is not allowed.
  * Bevel highlights and shadows are decorative and carry no information, so they are not listed.
  */
@@ -124,5 +124,40 @@ export const approvedColourPairs: readonly ColourPair[] = [
     backgroundToken: "--color-desktop",
     kind: "ui",
     use: "Focus ring on the bare desktop",
+  },
+  {
+    id: "frame-on-window",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-window-face",
+    kind: "ui",
+    use: "Black frame, border or scroll bar thumb on a window face, panel or scroll bar track",
+  },
+  {
+    id: "frame-on-client",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-client-bg",
+    kind: "ui",
+    use: "Black frame or border around a client area",
+  },
+  {
+    id: "frame-on-button",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-button-face",
+    kind: "ui",
+    use: "Black border of a button or scroll bar thumb",
+  },
+  {
+    id: "frame-on-menu",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-menu-bg",
+    kind: "ui",
+    use: "Black rule under the menu bar",
+  },
+  {
+    id: "frame-on-title-inactive",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-title-inactive-bg",
+    kind: "ui",
+    use: "Black border around an inactive title bar",
   },
 ];

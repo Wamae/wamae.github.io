@@ -2,7 +2,10 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { approvedColourPairs } from "../../src/design/approved-colour-pairs";
-import { findUnapprovedColourUsage } from "../../src/design/find-unapproved-colour-usage";
+import {
+  findUnapprovedColourUsage,
+  findUnapprovedStyleAttributes,
+} from "../../src/design/find-unapproved-colour-usage";
 
 async function filesUnder(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -32,6 +35,22 @@ describe("colour use in the real source", () => {
     for (const path of sources) {
       const css = styleOf(path, await readFile(path, "utf8"));
       for (const violation of findUnapprovedColourUsage(css, approvedColourPairs)) {
+        violations.push(`${path}: ${violation}`);
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  it("has no colour in style attributes of .astro or .ts files", async () => {
+    const sources = (await filesUnder(join(process.cwd(), "src"))).filter(
+      (path) => (path.endsWith(".astro") || path.endsWith(".ts")) && !path.endsWith(".test.ts"),
+    );
+    const violations: string[] = [];
+    for (const path of sources) {
+      for (const violation of findUnapprovedStyleAttributes(
+        await readFile(path, "utf8"),
+        approvedColourPairs,
+      )) {
         violations.push(`${path}: ${violation}`);
       }
     }

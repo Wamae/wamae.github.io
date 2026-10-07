@@ -141,6 +141,6 @@ a {
 
 @supports not selector(::-webkit-scrollbar) {
   .nt-scroll {
-    scrollbar-color: var(--color-bevel-shadow) var(--color-window-face);
+    scrollbar-color: var(--color-window-frame) var(--color-window-face);
   }
 }
