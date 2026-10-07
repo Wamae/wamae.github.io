@@ -14,4 +14,9 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.strict,
   astro.configs.recommended,
+  {
+    // Plain Node scripts: declare the Node globals they use.
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: { console: "readonly", process: "readonly", URL: "readonly" } },
+  },
 );
