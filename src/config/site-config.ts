@@ -6,16 +6,38 @@ export interface SiteConfig {
   readonly ownerEmail: string;
 }
 
-const REQUIRED_KEYS = ["PUBLIC_OWNER_NAME", "PUBLIC_OWNER_EMAIL"] as const;
-
 // Deliberately loose: it catches typos, not every invalid address.
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// The values in .env.example. A build with these would publish placeholder text, so reject them.
+const PLACEHOLDERS = {
+  PUBLIC_OWNER_NAME: "your name",
+  PUBLIC_OWNER_EMAIL: "you@example.com",
+} as const;
 
 function readNonEmpty(env: RawEnvironment, key: string): string | undefined {
   const value = env[key];
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed === "" ? undefined : trimmed;
+}
+
+/** Reads one required key. Adds to `problems` and returns undefined when it is unusable. */
+function readRequired(
+  env: RawEnvironment,
+  key: keyof typeof PLACEHOLDERS,
+  problems: string[],
+): string | undefined {
+  const value = readNonEmpty(env, key);
+  if (value === undefined) {
+    problems.push(`${key} is missing or empty`);
+    return undefined;
+  }
+  if (value.toLowerCase() === PLACEHOLDERS[key]) {
+    problems.push(`${key} is still the placeholder from .env.example`);
+    return undefined;
+  }
+  return value;
 }
 
 /**
@@ -25,31 +47,19 @@ function readNonEmpty(env: RawEnvironment, key: string): string | undefined {
  */
 export function loadSiteConfig(env: RawEnvironment): SiteConfig {
   const problems: string[] = [];
-  const values = new Map<string, string>();
+  const ownerName = readRequired(env, "PUBLIC_OWNER_NAME", problems);
+  const ownerEmail = readRequired(env, "PUBLIC_OWNER_EMAIL", problems);
 
-  for (const key of REQUIRED_KEYS) {
-    const value = readNonEmpty(env, key);
-    if (value === undefined) {
-      problems.push(`${key} is missing or empty`);
-    } else {
-      values.set(key, value);
-    }
-  }
-
-  const email = values.get("PUBLIC_OWNER_EMAIL");
-  if (email !== undefined && !EMAIL_SHAPE.test(email)) {
+  if (ownerEmail !== undefined && !EMAIL_SHAPE.test(ownerEmail)) {
     problems.push("PUBLIC_OWNER_EMAIL is not a valid email address");
   }
 
-  if (problems.length > 0) {
+  if (ownerName === undefined || ownerEmail === undefined || problems.length > 0) {
     throw new Error(
       `Invalid site configuration:\n- ${problems.join("\n- ")}\n` +
         "Set them in .env (see .env.example) or as environment variables.",
     );
   }
 
-  return {
-    ownerName: values.get("PUBLIC_OWNER_NAME") ?? "",
-    ownerEmail: email ?? "",
-  };
+  return { ownerName, ownerEmail };
 }
