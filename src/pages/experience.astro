@@ -1,0 +1,12 @@
+---
+import DesktopLayout from "../layouts/desktop-layout.astro";
+import SectionContent from "../shell/section-content.astro";
+import { contentSections } from "../shell/section-model";
+
+const section = contentSections.find((candidate) => candidate.id === "experience");
+if (section === undefined) throw new Error("Missing section: experience");
+---
+
+<DesktopLayout section={section}>
+  <SectionContent section={section} />
+</DesktopLayout>

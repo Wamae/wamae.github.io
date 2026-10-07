@@ -43,6 +43,7 @@
   /* Buttons and 3D bevels */
   --color-button-face: var(--vga-light-gray);
   --color-button-text: var(--vga-black);
+  --color-button-disabled-text: var(--vga-dark-gray);
   --color-bevel-highlight: var(--vga-white);
   --color-bevel-shadow: var(--vga-dark-gray);
   --color-bevel-dark-shadow: var(--vga-black);
@@ -55,6 +56,16 @@
   --color-focus-ring: var(--vga-black);
   --color-focus-ring-on-selection: var(--vga-white);
   --color-focus-ring-on-desktop: var(--vga-white);
+
+  /* Taskbar, Start button, Start menu and address bar */
+  --color-taskbar-bg: var(--vga-light-gray);
+  --color-taskbar-text: var(--vga-black);
+  --color-start-button-bg: var(--vga-light-gray);
+  --color-start-button-text: var(--vga-black);
+  --color-start-menu-bg: var(--vga-light-gray);
+  --color-start-menu-text: var(--vga-black);
+  --color-address-bg: var(--vga-white);
+  --color-address-text: var(--vga-black);
 
   /* 3D bevels, drawn with box-shadow so no images are needed */
   --bevel-raised:
@@ -72,4 +83,6 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  /* The sticky taskbar. Scroll padding uses it so a focused item is never hidden behind it. */
+  --taskbar-height: 3rem;
 }

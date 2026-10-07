@@ -1,0 +1,93 @@
+---
+import Button from "./button.astro";
+import MenuBar from "./menu-bar.astro";
+import StatusBar from "./status-bar.astro";
+import Window from "./window.astro";
+
+// An in-desktop browser window. The title bar, menu bar and status bar are chrome. The toolbar has
+// real controls: Back and Forward are disabled until the script enables them, Home is a link,
+// and the address bar is a read-only text field named "Address". The page content is the slot.
+interface Props {
+  title: string;
+  address: string;
+  homeHref: string;
+}
+const { title, address, homeHref } = Astro.props;
+---
+
+<Window
+  id="browser"
+  class="browser"
+  title={`${title} - Web Browser`}
+  headingLevel={null}
+  landmark={false}
+  active
+>
+  <MenuBar slot="menu" items={["File", "Edit", "View", "Go", "Help"]} />
+  <div class="toolbar" slot="toolbar" role="group" aria-label="Browser toolbar">
+    <Button id="browser-back" disabled>
+      Back
+    </Button>
+    <Button id="browser-forward" disabled>
+      Forward
+    </Button>
+    <Button href={homeHref}>Home</Button>
+    <div class="address-row">
+      <label class="address-label" for="browser-address">
+        Address
+      </label>
+      <input
+        class="address"
+        id="browser-address"
+        type="text"
+        readonly
+        value={address}
+        spellcheck="false"
+      />
+    </div>
+  </div>
+  <slot />
+  <StatusBar slot="status" fields={["Done", "Placeholder content"]} />
+</Window>
+
+<style>
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-window-face);
+    color: var(--color-window-text);
+    border-bottom: 1px solid var(--color-window-frame);
+  }
+  /* The window fills the desktop above the taskbar, and a long page grows it. */
+  :global(.browser) {
+    flex: 1 1 auto;
+  }
+  .address-row {
+    display: flex;
+    flex: 1 1 18rem;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .address-label {
+    flex: none;
+    font-weight: 700;
+  }
+  /* A long address is cut with an ellipsis, but the whole value stays in the field for assistive technology. */
+  .address {
+    flex: 1 1 auto;
+    text-overflow: ellipsis;
+    min-width: 0;
+    min-height: 2rem;
+    padding: 0 var(--space-2);
+    background: var(--color-address-bg);
+    color: var(--color-address-text);
+    border: 1px solid var(--color-window-frame);
+    box-shadow: var(--bevel-sunken);
+    font: inherit;
+    font-size: 0.875rem;
+  }
+</style>

@@ -3,13 +3,16 @@
  * - `text`: normal text, 4.5:1 (SC 1.4.3)
  * - `large-text`: bold text of 14pt or more, or text of 18pt or more, 3:1 (SC 1.4.3)
  * - `ui`: focus rings and other parts needed to use the page, 3:1 (SC 1.4.11 and 2.4.13)
+ * - `disabled`: text of a control that is switched off, 2:1. WCAG exempts inactive controls from
+ *   SC 1.4.3, and the etched NT look needs dark gray, so the floor is lower but never lets it vanish.
  */
-export type PairKind = "text" | "large-text" | "ui";
+export type PairKind = "text" | "large-text" | "ui" | "disabled";
 
 export const minimumContrast: Readonly<Record<PairKind, number>> = {
   text: 4.5,
   "large-text": 3,
   ui: 3,
+  disabled: 2,
 };
 
 /** A foreground and a background, named by the semantic tokens in `src/styles/tokens.css`. */
@@ -82,6 +85,13 @@ export const approvedColourPairs: readonly ColourPair[] = [
     backgroundToken: "--color-button-face",
     kind: "text",
     use: "Button labels",
+  },
+  {
+    id: "button-disabled-text",
+    foregroundToken: "--color-button-disabled-text",
+    backgroundToken: "--color-button-face",
+    kind: "disabled",
+    use: "Label of a button that is switched off, drawn etched with a white offset shadow",
   },
   {
     id: "selection",
@@ -159,5 +169,61 @@ export const approvedColourPairs: readonly ColourPair[] = [
     backgroundToken: "--color-title-inactive-bg",
     kind: "ui",
     use: "Black border around an inactive title bar",
+  },
+  {
+    id: "taskbar-text",
+    foregroundToken: "--color-taskbar-text",
+    backgroundToken: "--color-taskbar-bg",
+    kind: "text",
+    use: "Text on the taskbar (task buttons, clock)",
+  },
+  {
+    id: "start-button-text",
+    foregroundToken: "--color-start-button-text",
+    backgroundToken: "--color-start-button-bg",
+    kind: "text",
+    use: "Label of the Start button",
+  },
+  {
+    id: "start-menu-text",
+    foregroundToken: "--color-start-menu-text",
+    backgroundToken: "--color-start-menu-bg",
+    kind: "text",
+    use: "Group labels and items of the Start menu",
+  },
+  {
+    id: "address-text",
+    foregroundToken: "--color-address-text",
+    backgroundToken: "--color-address-bg",
+    kind: "text",
+    use: "The address in the browser window's address bar",
+  },
+  {
+    id: "frame-on-taskbar",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-taskbar-bg",
+    kind: "ui",
+    use: "Black rule above the taskbar and border of its fields",
+  },
+  {
+    id: "frame-on-start-button",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-start-button-bg",
+    kind: "ui",
+    use: "Black border of the Start button",
+  },
+  {
+    id: "frame-on-start-menu",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-start-menu-bg",
+    kind: "ui",
+    use: "Black border of the Start menu",
+  },
+  {
+    id: "frame-on-address",
+    foregroundToken: "--color-window-frame",
+    backgroundToken: "--color-address-bg",
+    kind: "ui",
+    use: "Black border of the address bar field",
   },
 ];

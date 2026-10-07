@@ -1,0 +1,9 @@
+---
+import DesktopLayout from "../layouts/desktop-layout.astro";
+import ProgramManager from "../shell/program-manager.astro";
+import { sectionById } from "../shell/section-model";
+---
+
+<DesktopLayout section={sectionById("program-manager")}>
+  <ProgramManager />
+</DesktopLayout>

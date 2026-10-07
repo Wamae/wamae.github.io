@@ -3,18 +3,18 @@ import Icon from "../components/icon.astro";
 import MenuBar from "../components/menu-bar.astro";
 import StatusBar from "../components/status-bar.astro";
 import Window from "../components/window.astro";
-import { contentSections } from "./desktop-model";
+import { contentSections } from "./section-model";
 
 const fileCount = contentSections.length;
 ---
 
-<Window id="file-manager" title="File Manager">
+<Window id="file-manager" title="File Manager" headingLevel={1} landmark={false} active>
   <MenuBar slot="menu" items={["File", "Disk", "Tree", "View", "Options", "Window", "Help"]} />
   <div class="panes">
     <div class="pane">
-      <h3 id="tree-title" class="pane-title">
+      <h2 id="tree-title" class="pane-title">
         Directory tree
-      </h3>
+      </h2>
       <nav class="tree nt-scroll" aria-labelledby="tree-title">
         <ul>
           <li>
@@ -24,7 +24,7 @@ const fileCount = contentSections.length;
             <ul>
               {contentSections.map((section) => (
                 <li>
-                  <a class="entry" href={`#${section.id}`}>
+                  <a class="entry" href={section.path}>
                     <Icon name="folder" /> {section.title}
                   </a>
                 </li>
@@ -35,14 +35,14 @@ const fileCount = contentSections.length;
       </nav>
     </div>
     <div class="pane">
-      <h3 id="files-title" class="pane-title">
+      <h2 id="files-title" class="pane-title">
         Files in Site
-      </h3>
+      </h2>
       <div class="files nt-scroll">
         <ul aria-label="Files in Site">
           {contentSections.map((section) => (
             <li>
-              <a class="entry" href={`#${section.id}`}>
+              <a class="entry" href={section.path}>
                 <Icon name="file-text" /> {section.fileName}
               </a>
             </li>

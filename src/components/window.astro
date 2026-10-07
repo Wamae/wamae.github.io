@@ -5,21 +5,31 @@
 interface Props {
   id: string;
   title: string;
-  headingLevel?: 2 | 3;
+  /** The title is a heading of this level, or plain text when `null` (a title that is only chrome). */
+  headingLevel?: 1 | 2 | 3 | null;
   active?: boolean;
   /** True for a top-level region landmark, false for a window nested in another. */
   landmark?: boolean;
+  class?: string;
 }
-const { id, title, headingLevel = 2, active = false, landmark = true } = Astro.props;
+const {
+  id,
+  title,
+  headingLevel = 2,
+  active = false,
+  landmark = true,
+  class: className,
+} = Astro.props;
 const Frame = landmark ? "section" : "div";
-const Heading = `h${headingLevel}` as const;
+const Heading = headingLevel === null ? "span" : (`h${headingLevel}` as const);
 const titleId = `${id}-title`;
 const hasMenu = Astro.slots.has("menu");
+const hasToolbar = Astro.slots.has("toolbar");
 const hasStatus = Astro.slots.has("status");
 ---
 
 <Frame
-  class:list={["window", { active }]}
+  class:list={["window", { active }, className]}
   id={id}
   aria-labelledby={titleId}
   role={landmark ? undefined : "group"}
@@ -35,6 +45,7 @@ const hasStatus = Astro.slots.has("status");
     </span>
   </div>
   {hasMenu && <slot name="menu" />}
+  {hasToolbar && <slot name="toolbar" />}
   <div class="client">
     <slot />
   </div>
@@ -70,6 +81,10 @@ const hasStatus = Astro.slots.has("status");
   .title {
     flex: 1 1 auto;
     min-width: 0;
+    /* A long title is cut with an ellipsis. The element keeps its full text, so assistive technology reads all of it. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     padding: 0 var(--space-2);
     font-size: var(--font-size-ui);
     font-weight: 700;

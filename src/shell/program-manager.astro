@@ -2,17 +2,17 @@
 import MenuBar from "../components/menu-bar.astro";
 import ProgramIcon from "../components/program-icon.astro";
 import Window from "../components/window.astro";
-import { programGroups } from "./desktop-model";
+import { programGroups } from "./section-model";
 ---
 
-<Window id="program-manager" title="Program Manager" active>
+<Window id="program-manager" title="Program Manager" headingLevel={1} landmark={false} active>
   <MenuBar slot="menu" items={["File", "Options", "Window", "Help"]} />
   <div class="workspace">
     {programGroups.map((group) => (
       <Window
         id={group.id}
-        title={group.title}
-        headingLevel={3}
+        title={group.label}
+        headingLevel={2}
         landmark={false}
         active={group.id === programGroups[0]?.id}
       >
