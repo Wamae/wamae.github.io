@@ -8,8 +8,19 @@ Requires Node.js 24.16 or later in the 24 line, or Node.js 26.3 or later (the As
 
 ```sh
 npm ci
-cp .env.example .env   # then set PUBLIC_OWNER_NAME and PUBLIC_OWNER_EMAIL
 ```
+
+## Run on localhost
+
+```sh
+npm run local
+```
+
+The first time, it asks for your name and email, writes them to `.env`, and starts the dev server at <http://localhost:4321>. After that, `npm run local` starts the server straight away. The page reloads when you save a file. Stop the server with Ctrl+C.
+
+- `npm run setup:env` only (re)creates `.env`. Add `--force` after `--` to replace an existing one: `npm run setup:env -- --force`.
+- To create `.env` by hand instead: `cp .env.example .env`, then set both values.
+- To check the production build locally: `npm run build && npm run preview`, then open <http://localhost:4321>.
 
 The build fails if either value is missing, empty, malformed or still the placeholder from `.env.example`. `.env` is never committed. Values end up in the built site, so they are public.
 
