@@ -25,6 +25,11 @@ The project's scope, constraints and requirements live in [`product/project_char
 | Dependencies | [dependencies/dependency-register.md](dependencies/dependency-register.md) | The register of every dependency, with evidence |
 | Architecture | [architecture/adr-writing-guide.md](architecture/adr-writing-guide.md) | How to write an architecture decision record (ADR) |
 | Architecture | [architecture/adr/0000-adr-template.md](architecture/adr/0000-adr-template.md) | ADR template |
+| Architecture | [architecture/adr/0001-astro-static-framework.md](architecture/adr/0001-astro-static-framework.md) | ADR 0001: Astro as the static framework |
+| Architecture | [architecture/adr/0002-vitest-and-playwright.md](architecture/adr/0002-vitest-and-playwright.md) | ADR 0002: Vitest and Playwright as test tools |
+| Architecture | [architecture/adr/0003-commitlint-conventional-commits.md](architecture/adr/0003-commitlint-conventional-commits.md) | ADR 0003: commitlint for Conventional Commits |
+| Architecture | [architecture/adr/0004-pin-typescript-6.md](architecture/adr/0004-pin-typescript-6.md) | ADR 0004: pin TypeScript 6.0.3 until tooling supports 7 |
+| Architecture | [architecture/adr/0005-waive-t3-astro-plugins.md](architecture/adr/0005-waive-t3-astro-plugins.md) | ADR 0005: T3 waiver for the two Astro plugins |
 
 ## The short version
 
