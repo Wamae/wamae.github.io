@@ -8,7 +8,6 @@
 <!-- Trade-offs, follow-ups, and any hard decision the owner needs to make. -->
 
 ## Definition of done
-See [engineering/workflow/definition-of-done-checklist.md](../engineering/workflow/definition-of-done-checklist.md).
 
 **Code**
 - [ ] Follows SOLID and composition over inheritance

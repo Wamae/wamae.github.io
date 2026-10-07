@@ -49,6 +49,4 @@ A push to `main` (or a manual run of the Deploy workflow) runs `.github/workflow
 
 ## Documentation
 
-- Scope and requirements: [product/project_charter.md](product/project_charter.md)
-- Engineering guide (design, testing, commits, dependencies, quality): [engineering/engineering-guide-index.md](engineering/engineering-guide-index.md)
-- Working rules for Claude: [CLAUDE.md](CLAUDE.md)
+Project planning and engineering documents are kept locally by the owner and are not part of this repository.
