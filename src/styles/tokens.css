@@ -56,6 +56,14 @@
   --color-focus-ring-on-selection: var(--vga-white);
   --color-focus-ring-on-desktop: var(--vga-white);
 
+  /* 3D bevels, drawn with box-shadow so no images are needed */
+  --bevel-raised:
+    inset -1px -1px 0 var(--color-bevel-dark-shadow), inset 1px 1px 0 var(--color-bevel-highlight),
+    inset -2px -2px 0 var(--color-bevel-shadow);
+  --bevel-sunken:
+    inset -1px -1px 0 var(--color-bevel-highlight), inset 1px 1px 0 var(--color-bevel-shadow),
+    inset 2px 2px 0 var(--color-bevel-dark-shadow);
+
   /* Type and spacing */
   --font-ui: "Pixelify Sans", ui-sans-serif, system-ui, sans-serif;
   --font-size-ui: 1rem;
