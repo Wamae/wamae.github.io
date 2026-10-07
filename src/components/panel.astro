@@ -1,16 +1,15 @@
 ---
-// A box with a raised or sunken 3D border. Pure presentation, so any element can be chosen.
+// A box with a raised or sunken 3D border. Pure presentation.
 interface Props {
   variant: "raised" | "sunken";
-  as?: "div" | "section" | "li";
   class?: string;
 }
-const { variant, as: Tag = "div", class: className } = Astro.props;
+const { variant, class: className } = Astro.props;
 ---
 
-<Tag class:list={["panel", variant, className]}>
+<div class:list={["panel", variant, className]}>
   <slot />
-</Tag>
+</div>
 
 <style>
   .panel {

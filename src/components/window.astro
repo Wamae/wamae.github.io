@@ -9,19 +9,8 @@ interface Props {
   active?: boolean;
   /** True for a top-level region landmark, false for a window nested in another. */
   landmark?: boolean;
-  /** Gives the client area a maximum height and an NT-style scroll bar. */
-  scroll?: boolean;
-  class?: string;
 }
-const {
-  id,
-  title,
-  headingLevel = 2,
-  active = false,
-  landmark = true,
-  scroll = false,
-  class: className,
-} = Astro.props;
+const { id, title, headingLevel = 2, active = false, landmark = true } = Astro.props;
 const Frame = landmark ? "section" : "div";
 const Heading = `h${headingLevel}` as const;
 const titleId = `${id}-title`;
@@ -30,7 +19,7 @@ const hasStatus = Astro.slots.has("status");
 ---
 
 <Frame
-  class:list={["window", { active }, className]}
+  class:list={["window", { active }]}
   id={id}
   aria-labelledby={titleId}
   role={landmark ? undefined : "group"}
@@ -46,7 +35,7 @@ const hasStatus = Astro.slots.has("status");
     </span>
   </div>
   {hasMenu && <slot name="menu" />}
-  <div class:list={["client", { "nt-scroll": scroll, scrolls: scroll }]}>
+  <div class="client">
     <slot />
   </div>
   {hasStatus && <slot name="status" />}
@@ -127,8 +116,5 @@ const hasStatus = Astro.slots.has("status");
     border: 1px solid var(--color-window-frame);
     box-shadow: var(--bevel-sunken);
     padding: var(--space-3);
-  }
-  .scrolls {
-    max-height: 18rem;
   }
 </style>
