@@ -195,11 +195,18 @@
       "description": "Supported the Congo version of the Android app, fixing bugs and improving stability."
     },
     {
-      "id": "kopo-kopo-android-app",
+      "id": "kopo-kopo-flutter-app",
       "roleId": "kopo-kopo-inc",
       "title": "Kopo Kopo Flutter (Android) app",
       "industry": "Fintech",
-      "description": "Managed the backlog for the new Kopo Kopo Flutter (Android) app, gathering requirements and prioritizing product backlog items. Created the new Kopo Kopo Android app and built a CI/CD pipeline.",
+      "description": "Managed the backlog for the new Kopo Kopo Flutter (Android) app, gathering requirements and prioritizing product backlog items."
+    },
+    {
+      "id": "kopo-kopo-android-app",
+      "roleId": "kopo-kopo-inc",
+      "title": "Kopo Kopo Android app",
+      "industry": "Fintech",
+      "description": "Created the new Kopo Kopo Android app and built a CI/CD pipeline.",
       "results": "Increased daily active users by 25%."
     },
     {
@@ -264,10 +271,20 @@
       "url": "https://www.udemy.com/certificate/UC-5d359196-581c-461d-93f0-ab0cca513570/"
     },
     {
-      "name": "Introduction to Python for data science Cleaning data in Python"
+      "name": "Introduction to Python for data science",
+      "url": "https://courses.edx.org/certificates/e53afc173d2e4cd0818fbace7b1c54fd"
     },
     {
-      "name": "Intermediate Python Introduction to importing data in Python"
+      "name": "Cleaning data in Python",
+      "url": "https://www.datacamp.com/statement-of-accomplishment/course/645685a7a24c350ce76fd2c0599b9f0c8a01cd9a"
+    },
+    {
+      "name": "Intermediate Python",
+      "url": "https://www.datacamp.com/statement-of-accomplishment/course/5aeeb528e4575cc7a279d92581e78905ac8bbd8b"
+    },
+    {
+      "name": "Introduction to importing data in Python",
+      "url": "https://www.datacamp.com/statement-of-accomplishment/course/ad88ebc8512e611bc2c1702517df68802f9be16c"
     },
     {
       "name": "Python data science toolbox"

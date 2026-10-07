@@ -38,6 +38,14 @@ describe("groupProjectsByIndustry", () => {
     expect(groupProjectsByIndustry([])).toEqual([]);
   });
 
+  it("leaves out an industry that has no project, such as Agriculture", () => {
+    const groups = groupProjectsByIndustry([project("a", "Fintech")]);
+    expect(groups.map((group) => group.industry)).not.toContain("Agriculture");
+    expect(groupProjectsByIndustry([project("a", "Agriculture")]).map((g) => g.industry)).toEqual([
+      "Agriculture",
+    ]);
+  });
+
   it("counts every project exactly once", () => {
     const all = [project("a", "IoT"), project("b", "Banking"), project("c", "IoT")];
     const total = groupProjectsByIndustry(all).reduce((sum, g) => sum + g.projects.length, 0);

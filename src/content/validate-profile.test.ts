@@ -99,7 +99,7 @@ describe("validateProfile", () => {
   });
 
   it("rejects an unknown industry and names the allowed ones", () => {
-    const message = problemsFor((raw) => (raw["projects"][0].industry = "Agriculture"));
+    const message = problemsFor((raw) => (raw["projects"][0].industry = "Mining"));
     expect(message).toContain("projects[0].industry: must be exactly one of: Fintech, Banking");
   });
 

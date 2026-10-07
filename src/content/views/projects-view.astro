@@ -2,7 +2,7 @@
 import { groupProjectsByIndustry, industrySlug, type Profile } from "..";
 import PeriodText from "./period-text.astro";
 
-// Projects: an index by industry with counts, then every project newest first.
+// Projects: an index by industry with counts (only industries that have a project), then every project newest first.
 interface Props {
   profile: Profile;
 }

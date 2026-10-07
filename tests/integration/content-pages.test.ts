@@ -106,6 +106,17 @@ describe("/projects/", () => {
     expect(text).not.toContain("Project period:");
   });
 
+  it("lists only industries that have projects, and no empty one", () => {
+    const summary = /<ul class="industries[\s\S]*?<\/ul>/.exec(html())?.[0] ?? "";
+    const listed = [...summary.matchAll(/<a href="#industry-[a-z-]+"[^>]*>([^<]+)<\/a>/g)].map(
+      (m) => m[1],
+    );
+    const used = new Set(profile.projects.map((project) => project.industry));
+    expect(listed).toEqual(industries.filter((industry) => used.has(industry)));
+    expect(listed).not.toContain("Agriculture");
+    expect(summary).not.toContain("(0)");
+  });
+
   it("shows a summary of counts per industry that adds up to all projects", () => {
     const summary = /<ul class="industries[\s\S]*?<\/ul>/.exec(html())?.[0] ?? "";
     const counts = [
@@ -173,7 +184,8 @@ describe("whole content", () => {
 
   it("links every public certificate and profile link to https", () => {
     const withLinks = profile.certifications.filter((c) => c.url !== undefined);
-    expect(withLinks).toHaveLength(4);
+    expect(withLinks).toHaveLength(8);
+    expect(profile.certifications).toHaveLength(9);
     for (const certification of withLinks) {
       expect(pages["about"]).toContain(`>${certification.name}</a>`);
     }

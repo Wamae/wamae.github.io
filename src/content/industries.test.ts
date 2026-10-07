@@ -9,6 +9,11 @@ describe("industries", () => {
     expect(isIndustry(undefined)).toBe(false);
   });
 
+  it("includes Agriculture, which may have no project yet", () => {
+    expect(industries).toContain("Agriculture");
+    expect(industrySlug("Agriculture")).toBe("agriculture");
+  });
+
   it("makes a unique, URL-safe slug for each industry", () => {
     const slugs = industries.map(industrySlug);
     expect(new Set(slugs).size).toBe(industries.length);
