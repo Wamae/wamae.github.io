@@ -4,7 +4,7 @@ Personal professional website of Wamae Benson, with a Windows NT 3.1 retro theme
 
 ## Setup
 
-Requires Node.js 24 or later.
+Requires Node.js 24.16 or later in the 24 line, or Node.js 26.3 or later (the Astro ESLint plugin needs these).
 
 ```sh
 npm ci
@@ -31,7 +31,7 @@ The build fails if either value is missing, empty, malformed or still the placeh
 
 A push to `main` (or a manual run of the Deploy workflow) runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages.
 
-> **Before merging to `main`, the owner must do two things in the repository settings.** Until both are done, the deploy fails or does not publish.
+> **Before merging to `main`, the owner must do two things in the repository settings.** If step 1 is skipped, GitHub's legacy Jekyll build will publish the repository root (the README and docs) in place of the current site. If step 2 is skipped, the deploy build fails.
 >
 > 1. **Settings > Pages > Source: set it to "GitHub Actions".** The live site at <https://wamae.github.io> is currently on the legacy build source (the old template), so it will not switch by itself.
 > 2. **Settings > Secrets and variables > Actions > Variables: add `PUBLIC_OWNER_NAME` and `PUBLIC_OWNER_EMAIL`.** Deploy fails if they are unset. CI uses clearly fake fallback values when they are unset.
