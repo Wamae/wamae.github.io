@@ -3,3 +3,9 @@ node_modules
 # Local-only files
 .env
 product/CV.md
+
+# Build and test output
+dist
+.astro
+test-results
+playwright-report
