@@ -18,8 +18,14 @@ import { contentSections, plainContentId } from "./desktop-model";
 <style>
   .content-windows {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
+  }
+  /* Two by two, so the fourth window is never alone on a row. Stacked on phones. */
+  @media (min-width: 40rem) {
+    .content-windows {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .back {
     margin-top: var(--space-4);

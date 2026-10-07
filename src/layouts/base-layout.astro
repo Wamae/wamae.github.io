@@ -55,4 +55,8 @@ const { title } = Astro.props;
   .skip-link:focus {
     top: var(--space-2);
   }
+  /* The ring sits outside the link, on the bare desktop. */
+  .skip-link:focus-visible {
+    outline-color: var(--color-focus-ring-on-desktop);
+  }
 </style>

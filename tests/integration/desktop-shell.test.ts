@@ -56,6 +56,25 @@ describe("desktop shell markup", () => {
     expect(site.html).toMatch(new RegExp(`<h2[^>]*id="${id}-title"[^>]*>${title}</h2>`));
   });
 
+  it("keeps landmarks few: one named nav, and File Manager panes are plain divs", () => {
+    const fileManager = /<section[^>]*id="file-manager"[\s\S]*?<\/section>/.exec(site.html)?.[0];
+    expect(fileManager).toBeDefined();
+    expect(fileManager).not.toMatch(/<section[^>]*class="[^"]*pane/);
+    expect(site.html.match(/<nav[\s>]/g)).toHaveLength(1);
+    expect(site.html).toMatch(/<nav[^>]*aria-labelledby="tree-title"/);
+    expect(site.html).toMatch(/<h3[^>]*id="tree-title"[^>]*>\s*Directory tree\s*<\/h3>/);
+    // Banner, main, contentinfo and one region per window: 2 shell windows and 4 content windows.
+    expect(site.html.match(/<section[\s>]/g)).toHaveLength(6);
+  });
+
+  it("marks only Program Manager as the active top-level window", () => {
+    const topLevel = [...site.html.matchAll(/<section\b([^>]*)>/g)].map((m) => m[1] as string);
+    expect(topLevel).toHaveLength(6);
+    const active = topLevel.filter((attributes) => /class="[^"]*\bactive\b/.test(attributes));
+    expect(active).toHaveLength(1);
+    expect(active[0]).toContain('id="program-manager"');
+  });
+
   it("makes every program icon a real link with an accessible name", () => {
     const icons = [
       ...site.html.matchAll(
