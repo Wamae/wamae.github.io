@@ -1,7 +1,7 @@
 export default {
   extends: ["@commitlint/config-conventional"],
   rules: {
-    // Existing history and tooling write unwrapped body paragraphs.
-    "body-max-line-length": [0],
+    // Warn, do not fail: Dependabot and other tools write long unwrapped lines.
+    "body-max-line-length": [1, "always", 100],
   },
 };
