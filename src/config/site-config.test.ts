@@ -59,4 +59,21 @@ describe("loadSiteConfig", () => {
       /not a valid email address/,
     );
   });
+
+  it("rejects the placeholder values from .env.example", () => {
+    expect(() =>
+      loadSiteConfig({ PUBLIC_OWNER_NAME: "Your Name", PUBLIC_OWNER_EMAIL: "you@example.com" }),
+    ).toThrow(
+      /PUBLIC_OWNER_NAME is still the placeholder[\s\S]*PUBLIC_OWNER_EMAIL is still the placeholder/,
+    );
+  });
+
+  it("rejects a placeholder even with different case or spacing", () => {
+    expect(() => loadSiteConfig({ ...validEnv, PUBLIC_OWNER_NAME: "  your name " })).toThrow(
+      /PUBLIC_OWNER_NAME is still the placeholder/,
+    );
+    expect(() => loadSiteConfig({ ...validEnv, PUBLIC_OWNER_EMAIL: "You@Example.com" })).toThrow(
+      /PUBLIC_OWNER_EMAIL is still the placeholder/,
+    );
+  });
 });
