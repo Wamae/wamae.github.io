@@ -1,7 +1,8 @@
 node_modules
 
 # Local-only files
-.env
+.env*
+!.env.example
 product/CV.md
 
 # Build and test output
