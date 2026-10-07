@@ -45,4 +45,28 @@ describe("production build", () => {
       stderr: expect.stringContaining("PUBLIC_OWNER_NAME is missing or empty"),
     });
   });
+
+  it("fails with a clear message when the owner email is missing or empty", async () => {
+    await expect(
+      buildWith({ PUBLIC_OWNER_NAME: "Integration Owner", PUBLIC_OWNER_EMAIL: "" }),
+    ).rejects.toMatchObject({
+      stderr: expect.stringContaining("PUBLIC_OWNER_EMAIL is missing or empty"),
+    });
+  });
+
+  it("fails when the owner email is malformed", async () => {
+    await expect(
+      buildWith({ PUBLIC_OWNER_NAME: "Integration Owner", PUBLIC_OWNER_EMAIL: "not-an-email" }),
+    ).rejects.toMatchObject({
+      stderr: expect.stringContaining("PUBLIC_OWNER_EMAIL is not a valid email address"),
+    });
+  });
+
+  it("fails when the values are the .env.example placeholders", async () => {
+    await expect(
+      buildWith({ PUBLIC_OWNER_NAME: "Your Name", PUBLIC_OWNER_EMAIL: "you@example.com" }),
+    ).rejects.toMatchObject({
+      stderr: expect.stringContaining("is still the placeholder from .env.example"),
+    });
+  });
 });
