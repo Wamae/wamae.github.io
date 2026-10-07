@@ -1,0 +1,32 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <style>
+      .skip-link {
+        position: absolute;
+        left: 0.5rem;
+        top: -4rem;
+        padding: 0.5rem 1rem;
+        background: #fff;
+        color: #000;
+      }
+      .skip-link:focus {
+        top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <slot />
+  </body>
+</html>
