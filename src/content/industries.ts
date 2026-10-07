@@ -5,6 +5,7 @@ export const industries = [
   "Staffing",
   "IoT",
   "Public sector / data collection",
+  "Agriculture",
 ] as const;
 
 export type Industry = (typeof industries)[number];

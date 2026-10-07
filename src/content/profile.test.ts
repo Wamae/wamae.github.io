@@ -50,9 +50,27 @@ describe("the real profile data file", () => {
       "western-union",
       "congo-app-support",
     ]);
-    expect(idsOf("kopo-kopo-inc")).toEqual(["kopo-kopo-android-app", "communications-service"]);
+    expect(idsOf("kopo-kopo-inc")).toEqual([
+      "kopo-kopo-flutter-app",
+      "kopo-kopo-android-app",
+      "communications-service",
+    ]);
     expect(idsOf("numeral-iot")).toEqual(["numeral-android-apps", "numeral-prototypes"]);
     expect(idsOf("softcall")).toEqual(["softcall-mobile-banking", "softcall-open-data-kit"]);
+  });
+
+  it("lists each certification once, in CV order, and links only those the old site identified", () => {
+    expect(profile.certifications.map((c) => [c.name, c.url !== undefined])).toEqual([
+      ["Professional Scrum Master certification", true],
+      ["IBM Banking and financial industry intro", true],
+      ["Google Android Developer certification", true],
+      ["Android Unit Testing and Test-Driven Development", true],
+      ["Introduction to Python for data science", true],
+      ["Cleaning data in Python", true],
+      ["Intermediate Python", true],
+      ["Introduction to importing data in Python", true],
+      ["Python data science toolbox", false],
+    ]);
   });
 
   it("holds no currency anywhere in the file text", () => {

@@ -43,7 +43,7 @@ test("Projects show one industry each, newest first, with industry counts", asyn
   await openFromStart(page, "Projects");
   await expect(h1(page)).toHaveText("Projects");
   const articles = page.locator("main li[id^=project-]");
-  await expect(articles).toHaveCount(15);
+  await expect(articles).toHaveCount(16);
   await expect(articles.first().getByRole("heading", { level: 3 })).toHaveText("Move Money");
   await expect(articles.last().getByRole("heading", { level: 3 })).toHaveText(
     "Open Data Kit deployment",
@@ -53,7 +53,7 @@ test("Projects show one industry each, newest first, with industry counts", asyn
   }
   await expect(page.getByRole("link", { name: "Fintech" })).toBeVisible();
   const summary = page.getByRole("main").locator("ul.industries");
-  await expect(summary).toContainText("Fintech (5)");
+  await expect(summary).toContainText("Fintech (6)");
   await expect(summary).toContainText("Public sector / data collection (1)");
 });
 
@@ -110,7 +110,7 @@ test("without JavaScript the sections show their content", async ({ browser }) =
   await page.goto("/experience/");
   await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(9);
   await page.goto("/projects/");
-  await expect(page.locator("main li[id^=project-]")).toHaveCount(15);
+  await expect(page.locator("main li[id^=project-]")).toHaveCount(16);
   await page.goto("/about/");
   await expect(page.getByRole("main")).toContainText("Key skills");
   await context.close();
