@@ -56,4 +56,27 @@ describe("colour use in the real source", () => {
     }
     expect(violations).toEqual([]);
   });
+
+  it("uses every semantic token and every approved pair token somewhere in the source", async () => {
+    const files = await filesUnder(join(process.cwd(), "src"));
+    const tokensCss = await readFile(join(process.cwd(), "src/styles/tokens.css"), "utf8");
+    let used = "";
+    for (const path of files) {
+      if (/\.(css|astro)$/.test(path) && !path.endsWith("styles/tokens.css")) {
+        used += await readFile(path, "utf8");
+      }
+    }
+    // Tokens that other tokens are built from count as used through them.
+    const declared = [...tokensCss.matchAll(/(--(?!vga-)[a-z0-9-]+)\s*:/g)].map(
+      (m) => m[1] as string,
+    );
+    const unused = declared.filter(
+      (name) => !used.includes(`var(${name}`) && !tokensCss.includes(`var(${name})`),
+    );
+    expect(unused).toEqual([]);
+
+    for (const pair of approvedColourPairs) {
+      expect(used, pair.id).toContain(`var(${pair.foregroundToken})`);
+    }
+  });
 });
