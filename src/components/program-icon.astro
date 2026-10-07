@@ -1,0 +1,50 @@
+---
+import Icon from "./icon.astro";
+import type { IconName } from "./icon-names";
+
+// A Program Manager style icon with a label. It is a real link, named by its label.
+interface Props {
+  label: string;
+  href: string;
+  icon: IconName;
+}
+const { label, href, icon } = Astro.props;
+---
+
+<a class="program-icon" href={href}>
+  <span class="glyph">
+    <Icon name={icon} />
+  </span>
+  <span class="label">{label}</span>
+</a>
+
+<style>
+  .program-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    width: 7rem;
+    padding: var(--space-2);
+    color: var(--color-client-text);
+    text-align: center;
+    text-decoration: none;
+  }
+  .glyph {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    font-size: 3rem;
+  }
+  .label {
+    padding: 0 var(--space-1);
+  }
+  .program-icon:hover .label,
+  .program-icon:focus-visible .label {
+    background: var(--color-selection-bg);
+    color: var(--color-selection-text);
+  }
+  .program-icon:focus-visible {
+    outline-offset: 0;
+  }
+</style>

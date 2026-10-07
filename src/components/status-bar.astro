@@ -1,0 +1,33 @@
+---
+import Panel from "./panel.astro";
+
+// A row of sunken fields along the bottom of a window or the page.
+interface Props {
+  fields: readonly string[];
+}
+const { fields } = Astro.props;
+---
+
+<div class="status-bar">
+  {fields.map((field) => (
+    <Panel variant="sunken" class="field">
+      {field}
+    </Panel>
+  ))}
+  <slot />
+</div>
+
+<style>
+  .status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    background: var(--color-window-face);
+    color: var(--color-window-text);
+    border-top: 1px solid var(--color-window-frame);
+  }
+  .status-bar :global(.field) {
+    flex: 1 1 auto;
+  }
+</style>

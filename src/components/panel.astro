@@ -1,0 +1,26 @@
+---
+// A box with a raised or sunken 3D border. Pure presentation.
+interface Props {
+  variant: "raised" | "sunken";
+  class?: string;
+}
+const { variant, class: className } = Astro.props;
+---
+
+<div class:list={["panel", variant, className]}>
+  <slot />
+</div>
+
+<style>
+  .panel {
+    background: var(--color-window-face);
+    color: var(--color-window-text);
+    padding: var(--space-1) var(--space-2);
+  }
+  .raised {
+    box-shadow: var(--bevel-raised);
+  }
+  .sunken {
+    box-shadow: var(--bevel-sunken);
+  }
+</style>

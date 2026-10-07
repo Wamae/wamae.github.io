@@ -1,0 +1,116 @@
+---
+import Icon from "../components/icon.astro";
+import MenuBar from "../components/menu-bar.astro";
+import StatusBar from "../components/status-bar.astro";
+import Window from "../components/window.astro";
+import { contentSections } from "./desktop-model";
+
+const fileCount = contentSections.length;
+---
+
+<Window id="file-manager" title="File Manager">
+  <MenuBar slot="menu" items={["File", "Disk", "Tree", "View", "Options", "Window", "Help"]} />
+  <div class="panes">
+    <div class="pane">
+      <h3 id="tree-title" class="pane-title">
+        Directory tree
+      </h3>
+      <nav class="tree nt-scroll" aria-labelledby="tree-title">
+        <ul>
+          <li>
+            <span class="entry">
+              <Icon name="folder" /> Site
+            </span>
+            <ul>
+              {contentSections.map((section) => (
+                <li>
+                  <a class="entry" href={`#${section.id}`}>
+                    <Icon name="folder" /> {section.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="pane">
+      <h3 id="files-title" class="pane-title">
+        Files in Site
+      </h3>
+      <div class="files nt-scroll">
+        <ul aria-label="Files in Site">
+          {contentSections.map((section) => (
+            <li>
+              <a class="entry" href={`#${section.id}`}>
+                <Icon name="file-text" /> {section.fileName}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <StatusBar slot="status" fields={[`${fileCount} file(s)`, "Placeholder content"]} />
+</Window>
+
+<style>
+  .panes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+    margin: calc(var(--space-3) * -1);
+    background: var(--color-window-face);
+    color: var(--color-window-text);
+    padding: var(--space-2);
+  }
+  .pane {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .pane-title {
+    font-size: var(--font-size-ui);
+    padding: 0 var(--space-1);
+  }
+  /* No fixed height: the panes grow to fit their rows, so no row is ever clipped. */
+  .tree,
+  .files {
+    flex: 1 1 auto;
+    padding: var(--space-2);
+    background: var(--color-client-bg);
+    color: var(--color-client-text);
+    box-shadow: var(--bevel-sunken);
+  }
+  ul {
+    padding: 0;
+    list-style: none;
+  }
+  ul ul {
+    padding-left: var(--space-4);
+  }
+  .entry {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 1.75rem;
+    color: var(--color-client-text);
+    text-decoration: none;
+  }
+  a.entry:hover {
+    background: var(--color-selection-bg);
+    color: var(--color-selection-text);
+  }
+  /* A focused entry is drawn selected, with the ring inside it. */
+  a.entry:focus-visible {
+    background: var(--color-selection-bg);
+    color: var(--color-selection-text);
+    outline-color: var(--color-focus-ring-on-selection);
+    outline-offset: -2px;
+  }
+  @media (max-width: 40rem) {
+    .panes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
