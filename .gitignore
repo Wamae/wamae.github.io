@@ -5,6 +5,12 @@ node_modules
 !.env.example
 product/CV.md
 
+# Private planning and working files, kept locally only
+product/
+engineering/
+CLAUDE.md
+.claude/
+
 # Build and test output
 dist
 .astro

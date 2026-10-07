@@ -8,8 +8,7 @@ updates:
       prefix: "build(deps)"
     ignore:
       # TypeScript 7 is not supported by typescript-eslint and @astrojs/check yet.
-      # Remove this rule when they support it. See ADR 0004 and the "TypeScript 7 note"
-      # in engineering/dependencies/dependency-register.md.
+      # Remove this rule when they support it.
       - dependency-name: typescript
         versions: [">=7"]
     groups:
