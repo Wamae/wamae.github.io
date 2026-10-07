@@ -1,0 +1,41 @@
+---
+// A push button. With `href` it is a real link, otherwise a real button.
+interface Props {
+  href?: string;
+  type?: "button" | "submit";
+}
+const { href, type = "button" } = Astro.props;
+---
+
+{href !== undefined ? (
+  <a class="button" href={href}>
+    <slot />
+  </a>
+) : (
+  <button class="button" type={type}>
+    <slot />
+  </button>
+)}
+
+<style>
+  .button {
+    display: inline-block;
+    min-height: 2rem;
+    padding: var(--space-1) var(--space-4);
+    background: var(--color-button-face);
+    color: var(--color-button-text);
+    border: 1px solid var(--color-window-frame);
+    box-shadow: var(--bevel-raised);
+    font: inherit;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .button:active {
+    box-shadow: var(--bevel-sunken);
+  }
+  .button:focus-visible {
+    outline-offset: -6px;
+  }
+</style>
