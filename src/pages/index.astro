@@ -1,16 +1,11 @@
 ---
 import BaseLayout from "../layouts/base-layout.astro";
+import Desktop from "../shell/desktop.astro";
 import { getSiteConfig } from "../config";
 
 const { ownerName } = getSiteConfig();
 ---
 
 <BaseLayout title={ownerName}>
-  <header>
-    <p>{ownerName}</p>
-  </header>
-  <main id="main">
-    <h1>{ownerName}</h1>
-    <p>This site is under construction.</p>
-  </main>
+  <Desktop ownerName={ownerName} />
 </BaseLayout>
