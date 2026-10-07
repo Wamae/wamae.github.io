@@ -1,7 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export const e2eOwnerName = "E2E Test Owner";
-const port = 4321;
+// Not 4321, the default of `astro dev`, so e2e runs do not clash with a dev server.
+const port = 4399;
 
 export default defineConfig({
   testDir: "tests/e2e",
