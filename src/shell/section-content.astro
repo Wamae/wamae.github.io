@@ -1,0 +1,27 @@
+---
+import { type ContentSection } from "./section-model";
+
+// The text of a content section: its heading (the page's h1) and its placeholder text.
+// Extra content, such as the contact link, goes in the slot.
+interface Props {
+  section: ContentSection;
+}
+const { section } = Astro.props;
+---
+
+<article class="section-content">
+  <h1>{section.title}</h1>
+  <p>{section.placeholder}</p>
+  <slot />
+</article>
+
+<style>
+  .section-content {
+    display: grid;
+    gap: var(--space-3);
+  }
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+</style>

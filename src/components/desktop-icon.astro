@@ -1,0 +1,69 @@
+---
+import Icon from "./icon.astro";
+import type { IconName } from "./icon-names";
+
+// A folder icon on the desktop. A real link, named by its label, so Enter and a tap open it.
+// Without JavaScript a single click opens it. The script makes a single mouse click select the icon
+// and a double click open it, while Enter and a touch tap still open it at once.
+interface Props {
+  label: string;
+  href: string;
+  icon: IconName;
+}
+const { label, href, icon } = Astro.props;
+---
+
+<a class="desktop-icon" href={href} data-desktop-icon>
+  <span class="glyph">
+    <Icon name={icon} />
+  </span>
+  <span class="label">{label}</span>
+</a>
+
+<style>
+  .desktop-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    width: 7.5rem;
+    padding: var(--space-2);
+    color: var(--color-desktop-text);
+    text-align: center;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .glyph {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    font-size: 3rem;
+  }
+  /* Break between words only, so "Experience" is never split. */
+  .label {
+    padding: 0 var(--space-1);
+    overflow-wrap: normal;
+  }
+  /* On a phone the icons share one row, so they get smaller. */
+  @media (max-width: 47.99rem) {
+    .desktop-icon {
+      width: 100%;
+      padding: var(--space-1);
+      font-size: 0.8125rem;
+    }
+    .glyph {
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 2.5rem;
+    }
+  }
+  /* No hover highlight, as on Windows: only a selected or focused icon is filled, so two icons never look selected. */
+  .desktop-icon:focus-visible .label,
+  .desktop-icon[data-selected="true"] .label {
+    background: var(--color-selection-bg);
+    color: var(--color-selection-text);
+  }
+  .desktop-icon:focus-visible {
+    outline-color: var(--color-focus-ring-on-desktop);
+  }
+</style>

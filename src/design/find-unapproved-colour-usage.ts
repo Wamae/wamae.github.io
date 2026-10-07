@@ -65,14 +65,89 @@ function usesNamedColour(value: string): boolean {
   return (words ?? []).some((word) => NAMED_COLOURS.has(word));
 }
 
+const DISABLED_SELECTOR =
+  /:disabled\b|\[disabled(?:[~|^$*]?=[^\]]*)?\]|\[aria-disabled=["']?true["']?\]/;
+const ANY_VARIABLE = /var\(\s*(--[\w-]+)/g;
+
+/** Resolves CSS escapes, so `\64 isabled` cannot hide a token name. */
+function unescapeCss(text: string): string {
+  const withHex = text.replace(/\\([0-9a-f]{1,6})[ \t\n]?/gi, (match, hex: string) => {
+    const code = parseInt(hex, 16);
+    return code > 0x10ffff ? match : String.fromCodePoint(code);
+  });
+  return withHex.replace(/\\(.)/g, "$1");
+}
+
+/** Removes the contents of :has(), :where(), :is() and :not(): they do not say what the colour lands on. */
+function withoutFunctionalPseudoClasses(selector: string): string {
+  let current = selector;
+  for (;;) {
+    const next = current.replace(/:(?:has|where|is|not|matches)\([^()]*\)/gi, "");
+    if (next === current) return current;
+    current = next;
+  }
+}
+
+/**
+ * True when every selector in a list ends in a switched-off control. Only the last compound
+ * selector counts, because that is the element that gets the colour: in `.a:disabled + .label`
+ * it is the label.
+ */
+function isDisabledSelector(selector: string): boolean {
+  return withoutFunctionalPseudoClasses(unescapeCss(selector))
+    .split(",")
+    .every((part) => {
+      const last =
+        part
+          .trim()
+          .split(/[\s>+~]+/)
+          .pop() ?? "";
+      return DISABLED_SELECTOR.test(last);
+    });
+}
+
+/**
+ * Custom properties that carry a disabled-only colour, directly or through other custom properties.
+ * Using one of them outside a disabled selector is the same as using the colour itself.
+ */
+function disabledAliases(css: string, disabledTokens: ReadonlySet<string>): Set<string> {
+  const names = new Set(disabledTokens);
+  const declarations: [string, string][] = [];
+  for (const match of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(RULE)) {
+    for (const [property, value] of declarationsOf(unescapeCss(match[2] as string))) {
+      if (property.startsWith("--")) declarations.push([property, value]);
+    }
+  }
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const [property, value] of declarations) {
+      if (names.has(property)) continue;
+      if ([...value.matchAll(ANY_VARIABLE)].some((m) => names.has(m[1] as string))) {
+        names.add(property);
+        changed = true;
+      }
+    }
+  }
+  return names;
+}
+
 function checkBody(
   label: string,
   body: string,
   approved: ReadonlySet<string>,
   approvedUi: ReadonlySet<string>,
   focusRingTokens: ReadonlySet<string>,
+  disabledTokens: ReadonlySet<string>,
 ): string[] {
   const violations: string[] = [];
+  // The disabled pairs have a lower contrast floor, so they are allowed on switched-off controls only.
+  if (!isDisabledSelector(label)) {
+    for (const [, name] of unescapeCss(body).matchAll(ANY_VARIABLE)) {
+      if (disabledTokens.has(name as string)) {
+        violations.push(`${label}: ${name} is for disabled controls only`);
+      }
+    }
+  }
   if (COLOUR_LITERAL.test(body)) violations.push(`${label}: colour literal`);
   if (COLOUR_FUNCTION.test(body)) violations.push(`${label}: colour function`);
   if (PALETTE_TOKEN.test(body)) violations.push(`${label}: raw --vga-* token used`);
@@ -126,6 +201,9 @@ function pairSets(approvedPairs: readonly ColourPair[]) {
     focusRingTokens: new Set(
       approvedPairs.filter((p) => p.kind === "ui").map((p) => p.foregroundToken),
     ),
+    disabledTokens: new Set(
+      approvedPairs.filter((p) => p.kind === "disabled").map((p) => p.foregroundToken),
+    ),
   };
 }
 
@@ -145,14 +223,27 @@ export function findUnapprovedColourUsage(
   approvedPairs: readonly ColourPair[],
 ): string[] {
   const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
-  const { approved, approvedUi, focusRingTokens } = pairSets(approvedPairs);
+  const {
+    approved,
+    approvedUi,
+    focusRingTokens,
+    disabledTokens: disabledColours,
+  } = pairSets(approvedPairs);
+  const disabledTokens = disabledAliases(withoutComments, disabledColours);
   const violations: string[] = [];
 
   for (const match of withoutComments.matchAll(RULE)) {
     const selector = (match[1] as string).trim().replace(/\s+/g, " ");
     if (selector.startsWith("@font-face")) continue;
     violations.push(
-      ...checkBody(selector, match[2] as string, approved, approvedUi, focusRingTokens),
+      ...checkBody(
+        selector,
+        match[2] as string,
+        approved,
+        approvedUi,
+        focusRingTokens,
+        disabledTokens,
+      ),
     );
   }
   return violations;
@@ -168,11 +259,13 @@ export function findUnapprovedStyleAttributes(
   source: string,
   approvedPairs: readonly ColourPair[],
 ): string[] {
-  const { approved, approvedUi, focusRingTokens } = pairSets(approvedPairs);
+  const { approved, approvedUi, focusRingTokens, disabledTokens } = pairSets(approvedPairs);
   const violations: string[] = [];
   for (const match of source.matchAll(STYLE_ATTRIBUTE)) {
     const body = (match[1] ?? match[2] ?? match[3] ?? "").replace(/[`"']/g, "");
-    violations.push(...checkBody("style attribute", body, approved, approvedUi, focusRingTokens));
+    violations.push(
+      ...checkBody("style attribute", body, approved, approvedUi, focusRingTokens, disabledTokens),
+    );
   }
   return violations;
 }

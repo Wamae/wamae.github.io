@@ -1,0 +1,74 @@
+---
+import Icon from "./icon.astro";
+import Panel from "./panel.astro";
+import StartMenu from "./start-menu.astro";
+import type { IconName } from "./icon-names";
+import type { LinkGroup } from "../shell/section-model";
+
+// The taskbar: the Start button, a button for the open browser window, and a clock.
+// The clock is filled in by a tiny script and stays empty without JavaScript.
+interface Props {
+  groups: readonly LinkGroup[];
+  openWindow?: { title: string; href: string; icon: IconName } | undefined;
+}
+const { groups, openWindow } = Astro.props;
+---
+
+<div class="taskbar" role="region" aria-label="Taskbar">
+  <StartMenu groups={groups} />
+  <div class="task-windows" data-swap="task-windows">
+    {openWindow !== undefined && (
+      <a class="task-button" href={openWindow.href} aria-current="page">
+        <Icon name={openWindow.icon} />
+        <span class="task-title">{openWindow.title}</span>
+      </a>
+    )}
+  </div>
+  <Panel variant="sunken" class="clock-field">
+    <time class="clock" data-clock></time>
+  </Panel>
+</div>
+
+<style>
+  .taskbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    height: var(--taskbar-height);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1);
+    background: var(--color-taskbar-bg);
+    color: var(--color-taskbar-text);
+    border-top: 1px solid var(--color-window-frame);
+    box-shadow: var(--bevel-raised);
+  }
+  .task-windows {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .task-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 14rem;
+    min-height: 2.25rem;
+    padding: 0 var(--space-3);
+    background: var(--color-button-face);
+    color: var(--color-button-text);
+    border: 1px solid var(--color-window-frame);
+    box-shadow: var(--bevel-sunken);
+    text-decoration: none;
+  }
+  .task-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .taskbar :global(.clock-field) {
+    flex: none;
+    min-width: 4.5rem;
+    text-align: center;
+  }
+</style>

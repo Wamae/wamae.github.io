@@ -1,0 +1,99 @@
+---
+import "../styles/tokens.css";
+import "../styles/global.css";
+import BrowserWindow from "../components/browser-window.astro";
+import Panel from "../components/panel.astro";
+import StatusBar from "../components/status-bar.astro";
+import Taskbar from "../components/taskbar.astro";
+import fontRegularUrl from "../assets/fonts/pixelify-sans-latin-400-normal.woff2?url";
+import { getSiteConfig } from "../config";
+import { buildAddress } from "../shell/address-url";
+import Desktop from "../shell/desktop.astro";
+import { homePath, startMenuGroups, type Section } from "../shell/section-model";
+
+// Every page is the same desktop. A section page also opens the browser window, with the
+// section's content in it. Without a section the desktop shows only what the page puts in the slot.
+interface Props {
+  section?: Section;
+}
+const { section } = Astro.props;
+const { ownerName } = getSiteConfig();
+if (Astro.site === undefined) throw new Error("Set `site` in astro.config.mjs to build addresses.");
+const title = section === undefined ? ownerName : `${section.title} - ${ownerName}`;
+const address = section === undefined ? "" : buildAddress(Astro.site, section.path);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="preload" href={fontRegularUrl} as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip the desktop to the page content
+    </a>
+    <a class="skip-link" href="#start-button">
+      Skip to the Start menu
+    </a>
+    <p class="visually-hidden" role="status" data-page-status></p>
+    <Desktop>
+      {section === undefined ? (
+        <main id="main" tabindex="-1" aria-label={ownerName}>
+          <slot />
+        </main>
+      ) : (
+        <BrowserWindow title={section.title} address={address} homeHref={homePath}>
+          <main id="main" tabindex="-1" aria-label={section.title}>
+            <slot />
+          </main>
+        </BrowserWindow>
+      )}
+    </Desktop>
+    <footer>
+      <StatusBar fields={["Placeholder content only. Real content arrives in a later milestone."]}>
+        <Panel variant="sunken" class="field">
+          Open licences:
+          <a href="/licenses/pixelify-sans-OFL.txt">Pixelify Sans (OFL)</a>,
+          <a href="/licenses/pixelarticons-MIT.txt">pixelarticons (MIT)</a>
+        </Panel>
+      </StatusBar>
+    </footer>
+    <Taskbar
+      groups={startMenuGroups}
+      openWindow={section && { title: section.title, href: section.path, icon: section.icon }}
+    />
+    <script>
+      import "../shell/client/main";
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .skip-link {
+    position: absolute;
+    left: var(--space-2);
+    top: -6rem;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-window-face);
+    color: var(--color-window-text);
+    border: 2px solid var(--color-window-frame);
+    box-shadow: var(--bevel-raised);
+    z-index: 30;
+  }
+  .skip-link:focus {
+    top: var(--space-2);
+  }
+  /* The ring sits outside the link, on the bare desktop. */
+  .skip-link:focus-visible {
+    outline-color: var(--color-focus-ring-on-desktop);
+  }
+</style>

@@ -3,16 +3,18 @@
 interface Props {
   href?: string;
   type?: "button" | "submit";
+  id?: string;
+  disabled?: boolean;
 }
-const { href, type = "button" } = Astro.props;
+const { href, type = "button", id, disabled = false } = Astro.props;
 ---
 
 {href !== undefined ? (
-  <a class="button" href={href}>
+  <a class="button" href={href} id={id}>
     <slot />
   </a>
 ) : (
-  <button class="button" type={type}>
+  <button class="button" type={type} id={id} disabled={disabled}>
     <slot />
   </button>
 )}
@@ -32,7 +34,14 @@ const { href, type = "button" } = Astro.props;
     text-decoration: none;
     cursor: pointer;
   }
-  .button:active {
+  /* An etched look: dark gray text with a white offset shadow. Not a pair for live text. */
+  .button:disabled {
+    background: var(--color-button-face);
+    color: var(--color-button-disabled-text);
+    text-shadow: 1px 1px 0 var(--color-bevel-highlight);
+    cursor: not-allowed;
+  }
+  .button:active:not(:disabled) {
     box-shadow: var(--bevel-sunken);
   }
   .button:focus-visible {

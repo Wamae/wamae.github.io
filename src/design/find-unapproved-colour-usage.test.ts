@@ -35,6 +35,76 @@ describe("findUnapprovedColourUsage", () => {
     expect(find(css)).toEqual([]);
   });
 
+  describe("disabled pairs", () => {
+    const disabled = "color: var(--color-button-disabled-text);";
+
+    it("accepts the disabled colour on a disabled control", () => {
+      expect(
+        find(`.button:disabled { ${disabled} background: var(--color-button-face); }`),
+      ).toEqual([]);
+      expect(find(`.a[aria-disabled="true"] { ${disabled} }`)).toEqual([]);
+      expect(find(`.a:disabled, .b:disabled { ${disabled} }`)).toEqual([]);
+    });
+
+    it("rejects the disabled colour on a rule that is not for disabled controls", () => {
+      expect(find(`.label { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.label { ${disabled} background: var(--color-button-face); }`)).toHaveLength(1);
+      expect(find(`.button:not(:disabled) { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.a:disabled, .b { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.a { text-shadow: 1px 1px 0 var(--color-button-disabled-text); }`)).toHaveLength(
+        1,
+      );
+    });
+
+    it("accepts a [disabled] attribute selector on the control itself", () => {
+      expect(find(`.button[disabled] { ${disabled} }`)).toEqual([]);
+    });
+
+    it("only looks at the last compound selector, the element the colour lands on", () => {
+      expect(find(`.a:disabled + .label { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.a:disabled .label { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.a:disabled > .label { ${disabled} }`)).toHaveLength(1);
+      expect(find(`[aria-disabled="true"] ~ p { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.a:disabled { ${disabled} }`)).toEqual([]);
+    });
+
+    it("ignores :disabled inside :has(), :where(), :is() and :not()", () => {
+      expect(find(`.form:has(:disabled) .label { ${disabled} }`)).toHaveLength(1);
+      expect(find(`:where(:disabled) .label { ${disabled} }`)).toHaveLength(1);
+      expect(find(`:is(:disabled) { ${disabled} }`)).toHaveLength(1);
+      expect(find(`.a:not(:disabled) { ${disabled} }`)).toHaveLength(1);
+    });
+
+    it("rejects an alias of the disabled colour used outside a disabled selector", () => {
+      const css = `.x:disabled { --alias: var(--color-button-disabled-text); } .label { color: var(--alias); }`;
+      expect(find(css).some((v) => v.includes("--alias"))).toBe(true);
+      expect(
+        find(
+          `.x:disabled { --alias: var(--color-button-disabled-text); } .y:disabled { color: var(--alias); }`,
+        ),
+      ).toEqual([]);
+      expect(find(`.x { --a: var(--color-button-disabled-text); }`)).toHaveLength(1);
+    });
+
+    it("sees through an alias of an alias", () => {
+      const css = `.x:disabled { --one: var(--color-button-disabled-text); --two: var(--one); } .label { color: var(--two); }`;
+      expect(find(css).some((v) => v.includes("--two"))).toBe(true);
+    });
+
+    it("sees through CSS escapes in the token name", () => {
+      expect(find(`.label { color: var(--color-button-\\64isabled-text); }`)).toHaveLength(1);
+      expect(find(`.label { color: var(--color-button-d\\isabled-text); }`)).toHaveLength(1);
+    });
+
+    it("rejects it in a style attribute", () => {
+      const violations = findUnapprovedStyleAttributes(
+        `<p style="color: var(--color-button-disabled-text)">x</p>`,
+        approvedColourPairs,
+      );
+      expect(violations.some((v) => v.includes("disabled controls only"))).toBe(true);
+    });
+  });
+
   it("does not mistake background-color for color", () => {
     expect(find(".a { background-color: var(--color-client-bg); }")).toEqual([]);
   });

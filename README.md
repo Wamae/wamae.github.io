@@ -44,11 +44,25 @@ The build fails if either value is missing, empty, malformed or still the placeh
 |---|---|
 | `src/styles/` | `tokens.css` (VGA palette and semantic tokens) and `global.css` |
 | `src/design/` | Contrast maths and the approved colour pairs, with unit tests |
-| `src/components/` | Design-system components (window, panel, button, menu bar, status bar, program icon, icon) |
-| `src/shell/` | The desktop: Program Manager, File Manager and content windows, built from a small data model |
+| `src/components/` | Design-system components (window, panel, button, menu bar, status bar, program icon, icon) and the desktop parts (desktop icon, taskbar, Start menu, browser window) |
+| `src/layouts/` | The desktop layout every page uses |
+| `src/pages/` | One static page per route: `/`, `/about/`, `/experience/`, `/projects/`, `/contact/`, `/program-manager/`, `/file-manager/` |
+| `src/shell/` | The section model, Program Manager and File Manager, and the pure logic (address bar URL, Start menu keys, history). `src/shell/client/` is the small browser script |
 | `src/assets/` | Self-hosted font and icons with their licences |
 
 Approved text and background colour pairs are listed in `src/design/approved-colour-pairs.ts`, and a test checks their contrast.
+
+## How the site behaves
+
+After the desktop appears, each section (About Me, Work Experience, Projects, Contact, plus Program Manager and File Manager) is its own real page. Every page shows the same desktop with a taskbar and a Start menu. A section page also shows a browser window with the section in it and the page's real address in the address bar.
+
+- Without JavaScript the pages, the Start menu (a native disclosure) and all links work. Back and Forward in the browser window are disabled.
+- The page changes are announced through a hidden status region, and focus moves to the page. Two skip links go to the page content and to the Start menu.
+- With JavaScript, opening a section from an icon or the Start menu loads the page into the browser window without a full reload, and Back, Forward and the browser's own back button work. On any failure it falls back to a normal page load.
+- Desktop icons are real links. Without JavaScript a single click opens them. With JavaScript a single click of a real mouse selects an icon, and a second click on the selected icon (a double click) opens it. Events that do not come from a mouse (the keyboard, touch, pen, or a plain script `click()`) open it at once. Assistive technology or voice control that emulates a real mouse reports a mouse pointer too, so it needs a second click, or Enter, to open an icon.
+- Back and Forward in the browser window follow the entries the window opened. The number of entries is kept in session storage, so Forward still works after a reload in the middle of the history. If storage is blocked, Forward shows disabled after a reload, although the browser's own forward button works.
+- The site is served from the root of its origin, so `site` in `astro.config.mjs` must not have a base path.
+- All section text is placeholder text for now.
 
 ## Deploy
 

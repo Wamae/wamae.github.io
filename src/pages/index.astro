@@ -1,11 +1,11 @@
 ---
-import BaseLayout from "../layouts/base-layout.astro";
-import Desktop from "../shell/desktop.astro";
+import DesktopLayout from "../layouts/desktop-layout.astro";
+import WelcomeWindow from "../shell/welcome-window.astro";
 import { getSiteConfig } from "../config";
 
 const { ownerName } = getSiteConfig();
 ---
 
-<BaseLayout title={ownerName}>
-  <Desktop ownerName={ownerName} />
-</BaseLayout>
+<DesktopLayout>
+  <WelcomeWindow ownerName={ownerName} />
+</DesktopLayout>
