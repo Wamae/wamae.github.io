@@ -12,7 +12,7 @@ Every commit message follows [Conventional Commits 1.0.0](https://www.convention
 ```
 
 - **Description:** imperative mood, lower case, no full stop, 72 characters or fewer. ("add zoom outline animation", not "Added...").
-- **Body:** explain why the change was made and any trade-offs. Wrap at about 72 characters.
+- **Body:** explain why the change was made and any trade-offs. Wrap at about 72 characters. The commit linter warns (does not fail) above 100 characters. Dependabot bodies are exempt in practice.
 - **Footer:** `BREAKING CHANGE: ...`, issue references, and the required co-author line (see below).
 
 ## Types
