@@ -142,6 +142,7 @@ How the constraint is enforced:
 - The current candidates (Astro, TypeScript, Node.js, `withastro/action`, `actions/deploy-pages`) must pass this check before the architecture is baselined. The versions recorded above were only checked for their release numbers. They have not yet been assessed against T1 to T4. If a candidate fails, the fallback is a more established option (for example TypeScript 6.0 in place of 7.0, or an older Astro major with security support).
 - The check is repeated at each release and whenever a dependency is added or a major version is upgraded. CI runs `npm audit` and fails on high or critical findings. Dependabot (or equivalent) security updates are enabled.
 - Dependencies are kept few: no framework runtime is added without a real need (see Performance).
+- Every external dependency stays on its latest stable release (no pre-releases). Security patches are applied as soon as they are released, with targets by severity: critical the same day, high within 2 days, medium within 7 days, low within 30 days. A scheduled CI audit of `main` runs at least weekly. Details are in `engineering/dependencies/dependency-selection-policy.md`.
 
 **Way of working (explicit constraint)**
 - Claude writes all code. A Claude Opus review agent reviews the code. Review findings are addressed by Claude before merge.

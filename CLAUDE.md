@@ -25,6 +25,7 @@ Personal professional website with a Windows NT 3.1 retro theme, hosted on GitHu
 ## Assets and dependencies
 - Icons, fonts and cursors must be open-source or original. Never copy Microsoft assets. Record each in `engineering/dependencies/dependency-register.md`.
 - Every dependency must pass the T1 to T4 check in `engineering/dependencies/dependency-selection-policy.md` before it is adopted.
+- Stay on the latest stable release of every external dependency (no pre-releases). Apply security patches as soon as they are released: critical same day, high 2 days, medium 7 days, low 30 days.
 
 ## Quality bars
 - WCAG 2.2 AA, full keyboard use, content readable without JavaScript, and `prefers-reduced-motion` respected. See `engineering/quality/`.
