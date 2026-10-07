@@ -1,12 +1,16 @@
 import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-// .astro files are not linted here: no Astro lint plugin passes the dependency policy.
-// They are covered by `astro check`.
-export default tseslint.config(
-  {
-    ignores: ["dist/**", ".astro/**", "node_modules/**", "playwright-report/**", "test-results/**"],
-  },
+// .astro files are linted by the Astro plugin, added in a later commit.
+export default defineConfig(
+  globalIgnores([
+    "dist/**",
+    ".astro/**",
+    "node_modules/**",
+    "playwright-report/**",
+    "test-results/**",
+  ]),
   js.configs.recommended,
-  ...tseslint.configs.strict,
+  tseslint.configs.strict,
 );
