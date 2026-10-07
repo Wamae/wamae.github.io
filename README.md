@@ -11,7 +11,7 @@ npm ci
 cp .env.example .env   # then set PUBLIC_OWNER_NAME and PUBLIC_OWNER_EMAIL
 ```
 
-The build fails if either value is missing or empty. `.env` is never committed. Values end up in the built site, so they are public.
+The build fails if either value is missing, empty, malformed or still the placeholder from `.env.example`. `.env` is never committed. Values end up in the built site, so they are public.
 
 ## Commands
 
@@ -29,10 +29,12 @@ The build fails if either value is missing or empty. `.env` is never committed. 
 
 ## Deploy
 
-A push to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages. One-time repository setup:
+A push to `main` (or a manual run of the Deploy workflow) runs `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages.
 
-1. Settings > Pages > Source: **GitHub Actions**.
-2. Settings > Secrets and variables > Actions > Variables: add `PUBLIC_OWNER_NAME` and `PUBLIC_OWNER_EMAIL`. Deploy fails if they are unset. CI uses clearly fake fallback values when they are unset.
+> **Before merging to `main`, the owner must do two things in the repository settings.** Until both are done, the deploy fails or does not publish.
+>
+> 1. **Settings > Pages > Source: set it to "GitHub Actions".** The live site at <https://wamae.github.io> is currently on the legacy build source (the old template), so it will not switch by itself.
+> 2. **Settings > Secrets and variables > Actions > Variables: add `PUBLIC_OWNER_NAME` and `PUBLIC_OWNER_EMAIL`.** Deploy fails if they are unset. CI uses clearly fake fallback values when they are unset.
 
 ## Documentation
 
