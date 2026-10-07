@@ -1,4 +1,4 @@
-/** The 16 standard VGA colours as hex values. The charter limits colour tokens to these. */
+/** The 16 standard VGA colours as hex values. Colour tokens are limited to these. */
 export const vgaPalette = {
   black: "#000000",
   "dark-red": "#800000",
