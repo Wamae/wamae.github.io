@@ -92,7 +92,7 @@ a {
   box-shadow: var(--bevel-raised);
 }
 
-.nt-scroll::-webkit-scrollbar-button:single-button {
+.nt-scroll::-webkit-scrollbar-button {
   display: block;
   width: 1rem;
   height: 1rem;
@@ -103,7 +103,7 @@ a {
   box-shadow: var(--bevel-raised);
 }
 
-.nt-scroll::-webkit-scrollbar-button:single-button:vertical:decrement {
+.nt-scroll::-webkit-scrollbar-button:vertical:start:decrement {
   background-image: conic-gradient(
     from 135deg at 50% 0,
     var(--color-button-text) 90deg,
@@ -112,7 +112,7 @@ a {
   background-size: 8px 4px;
 }
 
-.nt-scroll::-webkit-scrollbar-button:single-button:vertical:increment {
+.nt-scroll::-webkit-scrollbar-button:vertical:end:increment {
   background-image: conic-gradient(
     from -45deg at 50% 100%,
     var(--color-button-text) 90deg,
@@ -121,7 +121,7 @@ a {
   background-size: 8px 4px;
 }
 
-.nt-scroll::-webkit-scrollbar-button:single-button:horizontal:decrement {
+.nt-scroll::-webkit-scrollbar-button:horizontal:start:decrement {
   background-image: conic-gradient(
     from 225deg at 100% 50%,
     var(--color-button-text) 90deg,
@@ -130,13 +130,19 @@ a {
   background-size: 4px 8px;
 }
 
-.nt-scroll::-webkit-scrollbar-button:single-button:horizontal:increment {
+.nt-scroll::-webkit-scrollbar-button:horizontal:end:increment {
   background-image: conic-gradient(
     from 45deg at 0 50%,
     var(--color-button-text) 90deg,
     transparent 0
   );
   background-size: 4px 8px;
+}
+
+/* One arrow at each end: hide the buttons that would sit next to the thumb. */
+.nt-scroll::-webkit-scrollbar-button:start:increment,
+.nt-scroll::-webkit-scrollbar-button:end:decrement {
+  display: none;
 }
 
 @supports not selector(::-webkit-scrollbar) {
