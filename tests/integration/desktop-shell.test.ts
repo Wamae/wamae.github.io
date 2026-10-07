@@ -11,7 +11,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await site.remove();
+  await site?.remove();
 });
 
 const tagsWithClass = (html: string, className: string) =>
