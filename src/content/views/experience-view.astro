@@ -1,0 +1,81 @@
+---
+import type { Profile } from "..";
+import PeriodText from "./period-text.astro";
+
+// Work experience: the roles newest first, each with the projects done in that role.
+interface Props {
+  profile: Profile;
+}
+const { profile } = Astro.props;
+---
+
+<ol class="roles">
+  {profile.roles.map((role) => {
+    const projects = profile.projects.filter((project) => project.roleId === role.id);
+    return (
+      <li id={`role-${role.id}`} tabindex="-1">
+        <article aria-labelledby={`role-${role.id}-title`}>
+          <h2 id={`role-${role.id}-title`}>{role.title}</h2>
+          <p class="employer">{role.employer}</p>
+          <p class="period">
+            <PeriodText period={role.period} />
+          </p>
+          {role.description !== undefined && <p>{role.description}</p>}
+          {role.highlights.length > 0 && (
+            <ul>
+              {role.highlights.map((highlight) => (
+                <li>{highlight}</li>
+              ))}
+            </ul>
+          )}
+          {projects.length > 0 && (
+            <>
+              <h3>Projects</h3>
+              <ul>
+                {projects.map((project) => (
+                  <li>
+                    <a href={`/projects/#project-${project.id}`}>{project.title}</a>
+                    <br />
+                    {project.description}
+                    {project.results !== undefined && ` ${project.results}`}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </article>
+      </li>
+    );
+  })}
+</ol>
+
+<style>
+  .roles {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+  .roles > li + li {
+    border-top: 1px solid var(--color-window-frame);
+    padding-top: var(--space-4);
+  }
+  article {
+    display: grid;
+    gap: var(--space-2);
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  h3 {
+    font-size: 1rem;
+  }
+  .employer {
+    font-weight: 700;
+  }
+  ul {
+    padding-left: var(--space-4);
+    display: grid;
+    gap: var(--space-1);
+  }
+</style>

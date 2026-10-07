@@ -14,11 +14,10 @@ interface SectionBase {
   readonly icon: IconName;
 }
 
-/** A page of the personal site. Its text is clearly labelled placeholder text for now. */
+/** A page of the personal site, with its content shown in the browser window. */
 export type ContentSection = SectionBase & {
   readonly kind: "content";
   readonly fileName: string;
-  readonly placeholder: string;
 };
 
 /** One of the M3 programs, shown as a page in the browser window. */
@@ -34,7 +33,6 @@ export const sections: readonly Section[] = [
     path: "/about/",
     icon: "user",
     fileName: "about.txt",
-    placeholder: "About Me: content arrives in a later milestone.",
   },
   {
     id: "experience",
@@ -43,7 +41,6 @@ export const sections: readonly Section[] = [
     path: "/experience/",
     icon: "briefcase",
     fileName: "experience.txt",
-    placeholder: "Work experience: content arrives in a later milestone.",
   },
   {
     id: "projects",
@@ -52,7 +49,6 @@ export const sections: readonly Section[] = [
     path: "/projects/",
     icon: "folder",
     fileName: "projects.txt",
-    placeholder: "Projects by industry: content arrives in a later milestone.",
   },
   {
     id: "contact",
@@ -61,7 +57,6 @@ export const sections: readonly Section[] = [
     path: "/contact/",
     icon: "mail",
     fileName: "contact.txt",
-    placeholder: "Contact details: content arrives in a later milestone.",
   },
   {
     id: "program-manager",

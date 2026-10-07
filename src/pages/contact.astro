@@ -1,18 +1,19 @@
 ---
 import DesktopLayout from "../layouts/desktop-layout.astro";
 import SectionContent from "../shell/section-content.astro";
-import { getSiteConfig } from "../config";
 import { contentSections } from "../shell/section-model";
+import ContactView from "../content/views/contact-view.astro";
+import { getProfile } from "../content";
+import { getSiteConfig } from "../config";
 
 const section = contentSections.find((candidate) => candidate.id === "contact");
 if (section === undefined) throw new Error("Missing section: contact");
 const { ownerEmail } = getSiteConfig();
+const { links } = getProfile();
 ---
 
 <DesktopLayout section={section}>
   <SectionContent section={section}>
-    <p>
-      Email: <a href={`mailto:${ownerEmail}`}>{ownerEmail}</a>
-    </p>
+    <ContactView email={ownerEmail} links={links} />
   </SectionContent>
 </DesktopLayout>

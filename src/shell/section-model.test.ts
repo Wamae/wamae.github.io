@@ -39,11 +39,9 @@ describe("section model", () => {
     }
   });
 
-  it("labels every placeholder so it cannot pass for a real fact", () => {
+  it("has four content sections, each with a file name", () => {
     expect(contentSections).toHaveLength(4);
-    for (const section of contentSections) {
-      expect(section.placeholder).toContain("content arrives in a later milestone");
-    }
+    for (const section of contentSections) expect(section.fileName).toMatch(/^[a-z]+\.txt$/);
   });
 
   it("has unique file names for the content sections", () => {

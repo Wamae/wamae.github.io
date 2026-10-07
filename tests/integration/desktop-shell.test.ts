@@ -161,11 +161,9 @@ describe("section pages", () => {
     expect(html.indexOf('id="browser"')).toBeLessThan(html.indexOf("<main"));
   });
 
-  it("keeps the placeholder text in the HTML, readable without JavaScript", () => {
-    for (const route of sectionRoutes.filter(
-      (r) => r.path !== "/program-manager/" && r.path !== "/file-manager/",
-    )) {
-      expect(pages[route.path]).toContain("content arrives in a later milestone");
+  it("no longer says that content is a placeholder or comes later", () => {
+    for (const route of routes) {
+      expect(pages[route.path], route.path).not.toMatch(/placeholder|later milestone/i);
     }
   });
 

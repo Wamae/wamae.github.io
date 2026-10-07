@@ -1,0 +1,17 @@
+---
+import { formatPartialDate, toIsoDate, type Period } from "..";
+
+// A period as words, with machine-readable dates: "March 2024 to August 2026".
+// An ongoing period ends in the word "present", which is not a date.
+interface Props {
+  period: Period;
+}
+const { period } = Astro.props;
+const { start, end } = period;
+---
+
+<span>
+  <time datetime={toIsoDate(start)}>{formatPartialDate(start)}</time>
+  {" to "}
+  {end === null ? "present" : <time datetime={toIsoDate(end)}>{formatPartialDate(end)}</time>}
+</span>

@@ -1,0 +1,105 @@
+---
+import { groupProjectsByIndustry, industrySlug, type Profile } from "..";
+import PeriodText from "./period-text.astro";
+
+// Projects: an index by industry with counts, then every project newest first.
+interface Props {
+  profile: Profile;
+}
+const { profile } = Astro.props;
+const groups = groupProjectsByIndustry(profile.projects);
+const roleOf = (roleId: string) => {
+  const role = profile.roles.find((candidate) => candidate.id === roleId);
+  if (role === undefined) throw new Error(`Unknown role: ${roleId}`);
+  return role;
+};
+---
+
+<section aria-labelledby="by-industry-title">
+  <h2 id="by-industry-title">By industry</h2>
+  <ul class="industries">
+    {groups.map((group) => (
+      <li>
+        <a href={`#industry-${industrySlug(group.industry)}`}>{group.industry}</a>
+        {` (${group.projects.length})`}
+      </li>
+    ))}
+  </ul>
+  {groups.map((group) => (
+    <section aria-labelledby={`industry-${industrySlug(group.industry)}`}>
+      <h3 id={`industry-${industrySlug(group.industry)}`} tabindex="-1">
+        {group.industry}
+      </h3>
+      <ul>
+        {group.projects.map((project) => (
+          <li>
+            <a href={`#project-${project.id}`}>{project.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</section>
+
+<section aria-labelledby="newest-first-title">
+  <h2 id="newest-first-title">All projects, newest first</h2>
+  <ol class="projects">
+    {profile.projects.map((project) => {
+      const role = roleOf(project.roleId);
+      return (
+        <li id={`project-${project.id}`} tabindex="-1">
+          <article aria-labelledby={`project-${project.id}-title`}>
+            <h3 id={`project-${project.id}-title`}>{project.title}</h3>
+            <p>
+              <strong>Industry:</strong> {project.industry}
+            </p>
+            {project.periodIsOwn ? (
+              <p>
+                {role.employer} ({role.title}). Project period:{" "}
+                <PeriodText period={project.period} />
+              </p>
+            ) : (
+              <p>
+                Role: {role.employer} ({role.title}, <PeriodText period={project.period} />)
+              </p>
+            )}
+            <p>{project.description}</p>
+            {project.results !== undefined && <p>{project.results}</p>}
+          </article>
+        </li>
+      );
+    })}
+  </ol>
+</section>
+
+<style>
+  section {
+    display: grid;
+    gap: var(--space-3);
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  h3 {
+    font-size: 1.125rem;
+  }
+  ul {
+    padding-left: var(--space-4);
+    display: grid;
+    gap: var(--space-1);
+  }
+  .projects {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+  .projects > li + li {
+    border-top: 1px solid var(--color-window-frame);
+    padding-top: var(--space-4);
+  }
+  article {
+    display: grid;
+    gap: var(--space-2);
+  }
+</style>
