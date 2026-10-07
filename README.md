@@ -48,7 +48,7 @@ The build fails if either value is missing, empty, malformed or still the placeh
 | `src/shell/` | The desktop: Program Manager, File Manager and content windows, built from a small data model |
 | `src/assets/` | Self-hosted font and icons with their licences |
 
-Colour rules are in [engineering/quality/design-tokens-and-approved-colour-pairs.md](engineering/quality/design-tokens-and-approved-colour-pairs.md).
+Approved text and background colour pairs are listed in `src/design/approved-colour-pairs.ts`, and a test checks their contrast.
 
 ## Deploy
 
