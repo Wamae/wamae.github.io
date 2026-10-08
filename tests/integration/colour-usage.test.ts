@@ -70,8 +70,16 @@ describe("colour use in the real source", () => {
     const declared = [...tokensCss.matchAll(/(--(?!vga-)[a-z0-9-]+)\s*:/g)].map(
       (m) => m[1] as string,
     );
+    // A token the script reads by name, with getComputedStyle, counts as used where it is named.
+    let read = "";
+    for (const path of files) {
+      if (path.endsWith(".ts") && !path.endsWith(".test.ts")) read += await readFile(path, "utf8");
+    }
     const unused = declared.filter(
-      (name) => !used.includes(`var(${name}`) && !tokensCss.includes(`var(${name})`),
+      (name) =>
+        !used.includes(`var(${name}`) &&
+        !tokensCss.includes(`var(${name})`) &&
+        !read.includes(`"${name}"`),
     );
     expect(unused).toEqual([]);
 

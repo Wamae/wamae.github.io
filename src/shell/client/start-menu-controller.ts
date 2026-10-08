@@ -9,7 +9,11 @@ export function bindStartMenu(doc: Document): void {
   const button = details?.querySelector("summary");
   if (details === null || details === undefined || button === null || button === undefined) return;
 
-  const items = () => [...details.querySelectorAll<HTMLAnchorElement>("nav a")];
+  // Links and the Screen Saver button, leaving out an item that is hidden.
+  const items = () =>
+    [...details.querySelectorAll<HTMLElement>("nav a, nav button")].filter(
+      (item) => item.closest("[hidden]") === null,
+    );
 
   const close = (returnFocus: boolean) => {
     details.open = false;
@@ -20,7 +24,7 @@ export function bindStartMenu(doc: Document): void {
     // Leave browser and system shortcuts alone.
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     const list = items();
-    const index = list.indexOf(doc.activeElement as HTMLAnchorElement);
+    const index = list.indexOf(doc.activeElement as HTMLElement);
     const action = nextMenuAction(event.key, {
       isOpen: details.open,
       activeIndex: index < 0 ? null : index,
@@ -38,7 +42,7 @@ export function bindStartMenu(doc: Document): void {
 
   // Choosing an item closes the menu, whether or not the script then opens the page itself.
   details.addEventListener("click", (event) => {
-    if ((event.target as Element).closest("nav a")) close(false);
+    if ((event.target as Element).closest("nav a, nav button")) close(false);
   });
 
   doc.addEventListener("click", (event) => {

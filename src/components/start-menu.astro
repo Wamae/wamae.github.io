@@ -4,7 +4,8 @@ import type { LinkGroup } from "../shell/section-model";
 
 // The Start menu. A native disclosure (<details>) holding a navigation of real links, so it
 // opens, closes and navigates without JavaScript. The script only adds arrow keys, Escape,
-// outside click and focus return.
+// outside click and focus return. The Screen Saver item is a button that only the script reveals,
+// and only while animations are on (the saver never runs for visitors who asked for less motion).
 interface Props {
   groups: readonly LinkGroup[];
 }
@@ -31,6 +32,14 @@ const { groups } = Astro.props;
               </a>
             </li>
           ))}
+          {group.id === "desktop" && (
+            <li data-audience="script" data-needs-animations>
+              <button class="start-item" type="button" data-screensaver-start>
+                <Icon name="monitor" />
+                Screen Saver
+              </button>
+            </li>
+          )}
         </ul>
       </div>
     ))}
@@ -93,8 +102,21 @@ const { groups } = Astro.props;
     padding: 0;
     list-style: none;
   }
+  /* Script-only items: not there without the script, and not there while animations are off. */
+  li[data-audience="script"] {
+    display: none;
+  }
+  :global(.js) li[data-audience="script"]:not([hidden]) {
+    display: block;
+  }
   .start-item {
     display: flex;
+    width: 100%;
+    background: var(--color-start-menu-bg);
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
     align-items: center;
     gap: var(--space-2);
     min-height: 2.25rem;

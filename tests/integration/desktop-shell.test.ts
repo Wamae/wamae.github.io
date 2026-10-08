@@ -268,6 +268,37 @@ describe("animations", () => {
     );
   });
 
+  it.each(routes)("$path has a script-only Screen Saver button, not a link", ({ path }) => {
+    const html = pages[path] as string;
+    const item = /<li[^>]*data-needs-animations[^>]*>[\s\S]*?<\/li>/.exec(html)?.[0] ?? "";
+    expect(item).toContain('data-audience="script"');
+    expect(item).toMatch(/<button[^>]*data-screensaver-start/);
+    expect(item).not.toContain("<a ");
+    expect(
+      item
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    ).toBe("Screen Saver");
+  });
+
+  it.each(routes)(
+    "$path has no outline or canvas in the page until the script makes one",
+    ({ path }) => {
+      const html = pages[path] as string;
+      expect(html).not.toMatch(/<canvas/);
+      expect(html).not.toMatch(/class="[^"]*zoom-outline/);
+      expect(html).not.toMatch(/data-animating=|data-screensaver=|data-busy=/);
+    },
+  );
+
+  it("numbers the Program Manager group windows for the cascade", () => {
+    const groups = [
+      ...(pages["/program-manager/"] as string).matchAll(/class="group"[^>]*style="--i: (\d+)"/g),
+    ];
+    expect(groups.map((group) => group[1])).toEqual(["0", "1", "2"]);
+  });
+
   it("ships the hourglass cursor, and the styles point at it", async () => {
     const svg = await site.readFileText("cursors/hourglass.svg");
     expect(svg).toContain("<svg");
@@ -295,7 +326,6 @@ describe("animations", () => {
     expect(used.length).toBeGreaterThan(0);
     for (const colour of used) expect(vga.has(colour), colour).toBe(true);
   });
-
 });
 
 describe("the desktop home page", () => {

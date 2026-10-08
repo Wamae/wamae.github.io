@@ -25,11 +25,14 @@ test("keyboard: Start opens with Enter, arrows move, Escape closes and returns f
   await page.keyboard.press("ArrowDown");
   await expect(startMenu(page).getByRole("link", { name: "Work Experience" })).toBeFocused();
   await page.keyboard.press("End");
+  await expect(startMenu(page).getByRole("button", { name: "Screen Saver" })).toBeFocused();
+  await page.keyboard.press("ArrowUp");
   await expect(startMenu(page).getByRole("link", { name: "Show Desktop" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
   await page.keyboard.press("ArrowDown");
   await expect(startMenu(page).getByRole("link", { name: "About Me" })).toBeFocused();
   await page.keyboard.press("ArrowUp");
-  await expect(startMenu(page).getByRole("link", { name: "Show Desktop" })).toBeFocused();
+  await expect(startMenu(page).getByRole("button", { name: "Screen Saver" })).toBeFocused();
   await page.keyboard.press("Home");
   await expect(startMenu(page).getByRole("link", { name: "About Me" })).toBeFocused();
 
