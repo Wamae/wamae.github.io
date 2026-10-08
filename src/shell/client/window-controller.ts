@@ -1,7 +1,7 @@
 import { homePath } from "../section-model";
 import type { WindowEvent, WindowModel } from "../window-state";
 import type { Rect } from "../zoom-frames";
-import type { Animator } from "./zoom-animator";
+import { playZoom, type Animator } from "./zoom-animator";
 import type { NavigationObserver, SectionNavigation } from "./section-navigation";
 
 /** The pure rules, handed in so this controller only has to apply them to the page. */
@@ -59,15 +59,24 @@ export function createWindowControls(
   /** Where the click that opens a window came from, and where a closing window was. */
   let origin: Rect | null = null;
   let closingFrom: Rect | null = null;
+  /** The origin of the load that is running, which only a click can give. */
+  let loadOrigin: Rect | null = null;
 
+  const enabled = () => {
+    try {
+      return animator.isEnabled();
+    } catch {
+      return false;
+    }
+  };
   /** The rectangle of an element, or null when there is none. Read before anything is changed. */
   const rectOf = (element: Element | null): Rect | null => {
-    if (element === null || !animator.isEnabled()) return null;
+    if (element === null || !enabled()) return null;
     const { x, y, width, height } = element.getBoundingClientRect();
     return { x, y, width, height };
   };
   const play = (from: Rect | null, to: Rect | null) => {
-    if (from !== null && to !== null) void animator.zoom(from, to);
+    if (from !== null && to !== null) playZoom(animator, from, to);
   };
   const startButton = () => doc.getElementById("start-button");
   const folderFor = (path: string) =>
@@ -151,9 +160,10 @@ export function createWindowControls(
     const before = rectOf(browser());
     const from = apply({ type: "toggle-maximize" }, false);
     if (from.maximized === model.maximized) return;
-    play(before, rectOf(browser()));
+    // The change, what is said and where focus is all come first. The outline is only decoration.
     say(machine.maximizeAnnouncement(model.maximized, title));
     if (focusButton) maximizeButton()?.focus();
+    play(before, rectOf(browser()));
   };
 
   const close = () => {
@@ -173,11 +183,18 @@ export function createWindowControls(
   doc.addEventListener(
     "click",
     (event) => {
-      const opener = (event.target as Element).closest("[data-desktop-icon], .start-item");
+      const opener = (event.target as Element).closest(
+        "[data-desktop-icon], .start-item:not([data-screensaver-start])",
+      );
       origin = rectOf(opener);
     },
     true,
   );
+  // A click that opens a window has started its load by the time the event reaches the window. One
+  // that has not (the folder of the page that is open, a button) must not leave an origin for later.
+  win.addEventListener("click", () => {
+    origin = null;
+  });
 
   doc.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0) return;
@@ -207,12 +224,14 @@ export function createWindowControls(
       navigation = next;
     },
     navigating(path) {
+      loadOrigin = origin;
+      origin = null;
       closingFrom = path === homePath && model.state === "open" ? rectOf(browser()) : null;
     },
     navigated(path, swapped) {
       const target = path === homePath ? "desktop" : "section";
-      const opener = origin;
-      origin = null;
+      const opener = loadOrigin;
+      loadOrigin = null;
       const closing = closingFrom;
       closingFrom = null;
       const from = apply({ type: "navigate", target }, !swapped || target === "desktop");
@@ -222,7 +241,7 @@ export function createWindowControls(
       }
       // A different page already announced itself and holds focus.
       if (!swapped && from.state === "minimized") showWindowAgain();
-      if (animator.isEnabled()) {
+      if (enabled()) {
         if (target === "desktop") {
           if (from.state === "open") play(closing, rectOf(folderFor(sectionPath) ?? startButton()));
           sectionPath = "";
