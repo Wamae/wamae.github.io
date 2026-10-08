@@ -70,6 +70,9 @@
   /* Animations: the zoom outline is inverted against whatever is under it, so it shows on any
      colour. The screen saver colours are read by the script by name. */
   --color-zoom-outline: var(--vga-white);
+  --color-screensaver-bg: var(--vga-black);
+  --color-screensaver-line-a: var(--vga-cyan);
+  --color-screensaver-line-b: var(--vga-magenta);
 
   /* 3D bevels, drawn with box-shadow so no images are needed */
   --bevel-raised:

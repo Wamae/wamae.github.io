@@ -1,5 +1,6 @@
 import { bindAnimationPreference } from "./animation-controller";
 import { createBusyIndicator } from "./busy-controller";
+import { bindScreenSaver } from "./screensaver-controller";
 import { startClock } from "./clock-controller";
 import { bindDesktopIcons } from "./desktop-icon-controller";
 import { bindSectionNavigation } from "./section-navigation";
@@ -35,6 +36,7 @@ const windowControls = createWindowControls(
 );
 const busy = createBusyIndicator(document, window, animations.isEnabled);
 windowControls.bind(bindSectionNavigation(document, window, windowControls, busy));
+bindScreenSaver(document, window, { animations });
 startClock(document, window);
 
 // Last, so that script-only controls appear only when everything above has been bound. If any
