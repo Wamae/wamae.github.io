@@ -238,8 +238,8 @@ describe("whole content", () => {
 
   it("links every public certificate and profile link to https", () => {
     const withLinks = profile.certifications.filter((c) => c.url !== undefined);
-    expect(withLinks).toHaveLength(8);
-    expect(profile.certifications).toHaveLength(9);
+    expect(withLinks).toHaveLength(10);
+    expect(profile.certifications).toHaveLength(10);
     for (const certification of withLinks) {
       expect(pages["about"]).toContain(`>${certification.name}</a>`);
     }

@@ -68,7 +68,8 @@ describe("the real CV file (content/cv.yml)", () => {
       ["Cleaning data in Python", true],
       ["Intermediate Python", true],
       ["Introduction to importing data in Python", true],
-      ["Python data science toolbox", false],
+      ["Python data science toolbox (part 1)", true],
+      ["Python data science toolbox (part 2)", true],
     ]);
   });
 

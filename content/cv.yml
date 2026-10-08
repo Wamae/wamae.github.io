@@ -306,7 +306,10 @@ certifications:
     url: https://www.datacamp.com/statement-of-accomplishment/course/5aeeb528e4575cc7a279d92581e78905ac8bbd8b
   - name: Introduction to importing data in Python
     url: https://www.datacamp.com/statement-of-accomplishment/course/ad88ebc8512e611bc2c1702517df68802f9be16c
-  - name: Python data science toolbox
+  - name: Python data science toolbox (part 1)
+    url: https://www.datacamp.com/statement-of-accomplishment/course/f3b8670a6583b39a0a1e76a6018e1ecc0a71d75d
+  - name: Python data science toolbox (part 2)
+    url: https://www.datacamp.com/statement-of-accomplishment/course/5c5a0105319d9e87ac9171d8ecb060791cf2b331
 
 # ---- Links shown on the Contact page (https only) -------------------------
 links:

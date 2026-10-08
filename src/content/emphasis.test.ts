@@ -121,3 +121,15 @@ describe("stripEmphasis", () => {
     expect(stripEmphasis("**open and ****x")).not.toContain("*");
   });
 });
+
+describe("terms with a hyphen or capitals", () => {
+  it("marks COVID-19 and GDPR as strong", () => {
+    expect(segments("during **COVID-19** and **GDPR** issues")).toEqual([
+      { kind: "plain", text: "during " },
+      { kind: "strong", text: "COVID-19" },
+      { kind: "plain", text: " and " },
+      { kind: "strong", text: "GDPR" },
+      { kind: "plain", text: " issues" },
+    ]);
+  });
+});
