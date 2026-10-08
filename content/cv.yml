@@ -37,6 +37,8 @@
 #   - Put ** on both sides of a figure to show it in bold: **80%**.
 #   - Allowed in: summary, description, highlights and results. Not in titles,
 #     names, skills or links.
+#   - Bold is used for the impact figures (3X, 80%, 66%, 3 months, 3-4 weeks,
+#     1000+, 100K, 10 million, 25%, 90%, 5, 100) and for the terms GDPR and COVID-19.
 #   - No spaces just inside the markers, no nesting, no empty pairs, and no other
 #     asterisks. A misplaced marker fails the build.
 #
@@ -186,7 +188,7 @@ projects:
     title: Bug triage and security improvements
     industry: Staffing
     description: Communicated with the IndeedFlex engineers to understand and address end-user
-      challenges, security concerns and GDPR issues. Led stand-ups to triage bugs and
+      challenges, security concerns and **GDPR** issues. Led stand-ups to triage bugs and
       unblock engineers, emphasizing secure coding practices. Decomposed bugs in Ruby on
       Rails and Kotlin apps, documented issues in Jira, and relayed tickets to Engineering
       Managers and Product Owners.
@@ -267,7 +269,8 @@ projects:
     roleId: numeral-iot
     title: Android prototypes
     industry: IoT
-    description: Created Android prototypes for temperature reading during COVID-19 and number plate
+    description:
+      Created Android prototypes for temperature reading during **COVID-19** and number plate
       recognition using Firebase MLKit.
 
   - id: softcall-mobile-banking

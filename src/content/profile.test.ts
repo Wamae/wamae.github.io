@@ -73,7 +73,7 @@ describe("the real CV file (content/cv.yml)", () => {
     ]);
   });
 
-  it("bolds exactly the impact figures the CV emphasises, and nothing else", () => {
+  it("bolds exactly the figures and terms the CV emphasises, and nothing else", () => {
     const texts = [
       ...profile.summary,
       ...profile.roles.flatMap((role) => [role.description, ...role.highlights]),
@@ -93,6 +93,8 @@ describe("the real CV file (content/cv.yml)", () => {
         "1000+",
         "100K",
         "10 million",
+        "GDPR",
+        "COVID-19",
         "25%",
         "90%",
         "5",
