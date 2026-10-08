@@ -46,7 +46,8 @@ The build fails if either value is missing, empty, malformed or still the placeh
 | `src/design/` | Contrast maths and the approved colour pairs, with unit tests |
 | `src/components/` | Design-system components (window, panel, button, menu bar, status bar, program icon, icon) and the desktop parts (desktop icon, taskbar, Start menu, browser window) |
 | `src/layouts/` | The desktop layout every page uses |
-| `src/content/` | The profile data file, its validator, sorting and grouping, and the section views |
+| `content/` | `cv.yml`, the one file that holds all the site's CV content |
+| `src/content/` | The YAML loader and validator, bold-marker parser, sorting and grouping, and the section views |
 | `src/pages/` | One static page per route: `/`, `/about/`, `/experience/`, `/projects/`, `/contact/`, `/program-manager/`, `/file-manager/` |
 | `src/shell/` | The section model, Program Manager and File Manager, and the pure logic (address bar URL, Start menu keys, history). `src/shell/client/` is the small browser script |
 | `src/assets/` | Self-hosted font and icons with their licences |
@@ -66,14 +67,19 @@ After the desktop appears, each section (About Me, Work Experience, Projects, Co
 
 ## Editing the content
 
-All CV content is in one data file, `src/content/profile.json`: the headline, summary (first person), key skills, roles, projects, education, certifications and links. Change it there and the pages follow, with no template edits. The owner name and email still come from `.env`.
+All CV content is in one commented YAML file, **`content/cv.yml`**: the headline, summary (first person), key skills, roles, projects, education, certifications and links. It is public content and is published with the site. The comments at the top of the file explain every section, the date formats, the industry list and the rules below. The owner name and email still come from `.env`.
 
-- **Roles** have an `id`, `employer`, `title`, a `period` (`start` and `end`, each `"2012"` or `"2012-03"`; use `"end": null` for a role that is still going) and optional `description` and `highlights`.
-- **Projects** have an `id`, the `roleId` of their role, a `title`, exactly one `industry` from the fixed list (Fintech, Banking, Staffing, IoT, Public sector / data collection, Agriculture), a `description` and optional `results`. A project takes the period of its role unless it has its own `period`.
+To change the site: edit `content/cv.yml`, commit and push to `main`. The Deploy workflow builds the site from the file and publishes it, so nothing else needs changing. Locally, `npm run dev` reloads when the file is saved, and `npm run build` fails if the file is wrong.
+
+- **Roles** have an `id`, `employer`, `title`, `start` and `end` (each `2012` or `2012-03`; write `end: null` for a role that is still going) and optional `description` and `highlights`.
+- **Projects** have an `id`, the `roleId` of their role, a `title`, exactly one `industry` from the fixed list (Fintech, Banking, Staffing, IoT, Public sector / data collection, Agriculture), a `description` and optional `results`. A project takes the dates of its role unless it has its own `start` and `end`.
 - **Industries without a project** are not listed in the By industry index. Agriculture is in the fixed list but has no project yet; adding a project with that industry is all it needs to appear.
-- **Order** is never set by hand. Roles and projects are sorted newest first in code: later end date first (an ongoing role is newest), then later start date. Entries with the same period keep the order of the data file, so write the projects of a role in the order you want them shown. A year-only start counts as January and a year-only end as December. Overlapping roles are all shown.
-- **Results are percentages only.** A text field fails the build if it holds a currency symbol (any Unicode currency sign), a currency code in its own case such as USD or KES (also when it touches digits, as in USD500), "Sh" or "Shs" before an amount, "/=" after an amount, or a currency name as a whole word (dollars, shillings, euros, pounds, naira, rupees). Invisible characters are ignored when checking. Percentages and multiples such as 3X are fine.
-- **Validation** runs on every build. It fails with one message that lists every problem: unknown role id, unknown industry, bad date, empty field, duplicate id, a project without exactly one industry, currency, or a link that is not https.
+- **Order** is never set by hand. Roles and projects are sorted newest first in code: later end date first (an ongoing role is newest), then later start date. Entries with the same dates keep the order of the file, so write the projects of a role in the order you want them shown. A year-only start counts as January and a year-only end as December. Overlapping roles are all shown.
+- **Bold figures:** write `**` on both sides of a figure, for example `**80%**`, in the summary, descriptions, highlights and results. It becomes a real bold element. No spaces just inside the markers, no nesting, no empty pair and no other asterisks, or the build fails. Bold is not allowed in titles, names, skills or links.
+- **YAML quoting:** text that starts with `*`, `&`, `!`, `|`, `>`, `%`, `@`, `#`, `-`, `?`, `[`, `{` or `,`, or that contains a colon and a space (`: `), needs quotes. For example `"**3X** more revenue"` (a bold marker at the start needs quotes, because YAML reads a bare `*` as an alias).
+- **Results are percentages only.** A text field fails the build if it holds a currency symbol (any Unicode currency sign), a currency code in its own case such as USD or KES (also when it touches digits, as in USD500), "Sh" or "Shs" before an amount, "/=" after an amount, or a currency name as a whole word (dollars, shillings, euros, pounds, naira, rupees). Invisible characters are ignored when checking. The check runs on the text without the bold markers. Percentages and multiples such as 3X are fine.
+- **Validation** runs on every build and fails with one message that lists every problem with its field and line, for example `roles[3].end: must be a date such as 2012 or 2012-03 ... (line 52)`. It checks: YAML syntax (with the parser's line and column), duplicate keys, unknown fields, unknown role id, unknown industry, bad dates, empty text, duplicate ids, a project without exactly one industry, bold markers, currency, and links that are not https. Aliases (`*name`) and tags that build non-plain values are rejected.
+- **Parser:** the file is read with [js-yaml](https://github.com/nodeca/js-yaml) in its safe mode.
 
 ## Deploy
 

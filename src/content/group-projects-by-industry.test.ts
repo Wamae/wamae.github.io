@@ -8,7 +8,7 @@ const project = (id: string, industry: Industry): Project => ({
   roleId: "role",
   title: id,
   industry,
-  description: "Sample text.",
+  description: { segments: [{ kind: "plain", text: "Sample text." }], plain: "Sample text." },
   period: { start: { year: 2020 }, end: null },
   periodIsOwn: false,
 });

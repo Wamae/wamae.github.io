@@ -1,0 +1,322 @@
+# =============================================================================
+# The content of the site: everything shown on About Me, Work Experience,
+# Projects and Contact. This is the ONLY file to edit to change the site.
+# Save it and push to main: the build checks it and the site is deployed.
+# If something is wrong, the build stops and says which field and which line.
+#
+# FORMAT
+#   - Lines starting with # are comments. Indent with spaces, never tabs.
+#   - Text needs quotes ("..." or '...') when it starts with * & ! | > % @ # - ?
+#     or [ { , or contains a colon followed by a space (: ) or a space followed by #.
+#     Example: "**3X** more revenue" (it starts with a bold marker, so it needs quotes).
+#   - Long text may continue on the next lines, indented more than its key.
+#
+# DATES (start and end of a role)
+#   - A year ("2012") or a year and month ("2012-03", two digits for the month).
+#   - end: null means the role is still going.
+#   - Roles and projects are sorted newest first by the site: later end date first
+#     (still going counts as newest), then later start date. Roles may overlap.
+#   - Projects with the same dates (the projects of one role) show in the order
+#     written in this file, so write them in the order you want.
+#
+# PROJECTS
+#   - roleId must be the id of a role. A project shows the dates of its role. To give
+#     a project its own dates add both start: and end: to it.
+#   - Each project has exactly ONE industry, one of:
+#       Fintech, Banking, Staffing, IoT, Public sector / data collection, Agriculture
+#     ("Public sector / data collection" needs quotes). The Projects page lists an
+#     industry only when it has a project.
+#
+# RESULTS: PERCENTAGES ONLY, NO CURRENCY
+#   - Show revenue and similar results as percentages or multiples (80%, 3X).
+#     Never write an amount of money: no currency sign or code (for example USD,
+#     KES, Sh), no "/=" and no currency name (dollars, shillings, euros, pounds,
+#     naira, rupees). The build fails if one is found.
+#
+# BOLD FIGURES
+#   - Put ** on both sides of a figure to show it in bold: **80%**.
+#   - Allowed in: summary, description, highlights and results. Not in titles,
+#     names, skills or links.
+#   - No spaces just inside the markers, no nesting, no empty pairs, and no other
+#     asterisks. A misplaced marker fails the build.
+#
+# LINKS (certification url and links below): https:// addresses only.
+# Every id is lowercase words joined by hyphens and must be unique.
+# =============================================================================
+
+# ---- Headline -------------------------------------------------------------
+headline: Technical Project Manager
+
+# ---- Summary (first person, one text per paragraph) ----------------------
+summary:
+  - I am a Technical Project Manager with close to a decade of experience in the
+    agriculture, banking, fintech, staffing and IoT sectors. I have extensive experience in
+    delivering products on the web, mobile, USSD and IoT platforms.
+  - Recently, I revamped incoming and outgoing transfers, which brought a **3X** increase in
+    outgoing transactions revenue.
+
+# ---- Key skills -----------------------------------------------------------
+keySkills:
+  - Product Vision
+  - Product Strategy
+  - Market Research
+  - Data Analysis
+  - Project Management
+  - Team Leadership and Management
+  - Jira, Trello, Asana, Miro
+  - Scrum, Kanban, Agile
+  - Android and iOS development
+  - Backend and frontend development
+
+# ---- Roles (work experience), written in any order: the site sorts them -----
+roles:
+  - id: kopo-kopo-tpm
+    employer: Kopo Kopo
+    title: Technical Project Manager
+    start: 2024-03
+    end: 2026-08
+    description: Kopo Kopo is a Fintech company that provides services to move money and loans for
+      SMEs. I work with the Head of Product to conduct market research, to come up with
+      ideas that drive the product vision and strategy. I also work with the customer
+      support team, data team and product marketing throughout the product development
+      lifecycle.
+
+  - id: andela
+    employer: Andela
+    title: Senior Software Engineer
+    start: 2021-12
+    end: 2024-03
+    highlights:
+      - Contracted for companies while at Andela
+
+  - id: indeed-flex
+    employer: Indeed Flex
+    title: Technical Support Engineer
+    start: 2021-12
+    end: 2023-01
+    description: Indeed Flex is a staffing company geared towards connecting skilled workers such as
+      drivers and servers to companies.
+    highlights:
+      - Worked with QA to make sure the features met the functional and nonfunctional
+        requirements outlined by project managers.
+
+  - id: droid-pwani
+    employer: Droid Pwani
+    title: Co-Organizer
+    start: 2023-02
+    end: 2024-03
+    highlights:
+      - Assisted the team in using Jira to plan events and organised for speakers in the
+        sessions.
+
+  - id: azenia
+    employer: Azenia (Equity Bank)
+    title: Senior Android Engineer (International Money Transfer Team)
+    start: 2021-12
+    end: 2022-12
+    description: Azenia is a subsidiary of Equity Holdings that creates software solutions for
+      companies around Africa.
+
+  - id: kopo-kopo-inc
+    employer: Kopo Kopo Inc
+    title: Software Engineer
+    start: 2018-12
+    end: 2021-12
+    highlights:
+      - Collaborated with designers, engineers, and colleagues from various departments to
+        understand user needs and transform them into secure requirements.
+      - Researched app architecture and reduced risk by doing research on best tools to use.
+
+  - id: numeral-iot
+    employer: Numeral IoT
+    title: Android Consultant
+    start: 2018-05
+    end: 2021-09
+    description:
+      Numeral IoT is a hardware manufacturing company that also creates software for their
+      products and services such as speed governors, temperature sensors, fleet management
+      systems and government revenue collection.
+    highlights:
+      - Led a team of **5** developers, creating product roadmap and designing the
+        architecture of Android apps.
+
+  - id: baraton-lab-assistant
+    employer: University of Eastern Africa Baraton
+    title: Lab Assistant
+    start: 2014-01
+    end: 2014-08
+    highlights:
+      - Maintained over **100** computers and their network.
+      - Also worked as a teaching assistant for computer science classes.
+
+  - id: softcall
+    employer: Softcall Communications Ltd
+    title: Java Web and Android Developer
+    start: 2012-03
+    end: 2012-05
+
+# ---- Projects (shown in the order written here for the same dates) -------
+projects:
+  - id: move-money
+    roleId: kopo-kopo-tpm
+    title: Move Money
+    industry: Fintech
+    description: An improvement on how merchants receive and send money from their accounts through
+      web, mobile and USSD.
+    results: There was an increase of **80%** in revenue after the feature was released.
+
+  - id: free-mpesa
+    roleId: kopo-kopo-tpm
+    title: Free M-PESA
+    industry: Fintech
+    description: Merchants get free transfers to a nominated mobile phone account on mobile web and
+      USSD. This improved the merchant experience and created stickiness for merchants,
+      reducing churn.
+    results: The daily active users on the mobile app increased by **66%**.
+
+  - id: engineer-onboarding
+    roleId: kopo-kopo-tpm
+    title: Engineer onboarding
+    industry: Fintech
+    description: I improved the engineer onboarding time by making changes to the onboarding process.
+    results: Onboarding time went from **3 months** to **3-4 weeks**.
+
+  - id: bug-triage-and-security
+    roleId: indeed-flex
+    title: Bug triage and security improvements
+    industry: Staffing
+    description: Communicated with the IndeedFlex engineers to understand and address end-user
+      challenges, security concerns and GDPR issues. Led stand-ups to triage bugs and
+      unblock engineers, emphasizing secure coding practices. Decomposed bugs in Ruby on
+      Rails and Kotlin apps, documented issues in Jira, and relayed tickets to Engineering
+      Managers and Product Owners.
+    results: Saved IndeedFlex **1000+** hours in development time, reduced negative customer
+      feedback, and identified numerous security improvements.
+
+  - id: rate-card-migration
+    roleId: indeed-flex
+    title: Rate card migration
+    industry: Staffing
+    description:
+      Worked with the rate card team to migrate thousands of employee rate cards to meet the
+      new national minimum wage in the UK (2022).
+    results: Over **100K** workers were paid the correct wages in a timely fashion.
+
+  - id: paypal-withdrawals
+    roleId: azenia
+    title: PayPal withdrawals
+    industry: Banking
+    description:
+      Led the development of a feature to connect merchants' Equity bank accounts to PayPal,
+      allowing secure withdrawals from PayPal.
+    results: The feature is used by over **10 million** customers in East and Central Africa.
+
+  - id: service-degradation
+    roleId: azenia
+    title: Service degradation
+    industry: Banking
+    description:
+      Partnered to implement a service degradation feature, improving the merchant journey
+      on the Equity Bank Android app.
+
+  - id: western-union
+    roleId: azenia
+    title: Western Union
+    industry: Banking
+    description: Developed a feature for merchants to securely send and receive money from Western
+      Union.
+
+  - id: congo-app-support
+    roleId: azenia
+    title: Congo app support
+    industry: Banking
+    description: Supported the Congo version of the Android app, fixing bugs and improving stability.
+
+  - id: kopo-kopo-flutter-app
+    roleId: kopo-kopo-inc
+    title: Kopo Kopo Flutter (Android) app
+    industry: Fintech
+    description: Managed the backlog for the new Kopo Kopo Flutter (Android) app, gathering
+      requirements and prioritizing product backlog items.
+
+  - id: kopo-kopo-android-app
+    roleId: kopo-kopo-inc
+    title: Kopo Kopo Android app
+    industry: Fintech
+    description: Created the new Kopo Kopo Android app and built a CI/CD pipeline.
+    results: Increased daily active users by **25%**.
+
+  - id: communications-service
+    roleId: kopo-kopo-inc
+    title: Communications email service
+    industry: Fintech
+    description:
+      Led to completion of a microservice for communications, ensuring the service is always
+      up when we need to communicate to merchants.
+    results: The service processed **90%** of transactional and marketing emails sent per month.
+
+  - id: numeral-android-apps
+    roleId: numeral-iot
+    title: Speed limiter and inventory apps
+    industry: IoT
+    description:
+      Developed apps for testing speed limiters, tracking inventory, and configuring speed
+      limiters.
+
+  - id: numeral-prototypes
+    roleId: numeral-iot
+    title: Android prototypes
+    industry: IoT
+    description: Created Android prototypes for temperature reading during COVID-19 and number plate
+      recognition using Firebase MLKit.
+
+  - id: softcall-mobile-banking
+    roleId: softcall
+    title: Mobile banking app
+    industry: Banking
+    description: Created an Android mobile banking app and its backend app.
+
+  - id: softcall-open-data-kit
+    roleId: softcall
+    title: Open Data Kit deployment
+    industry: "Public sector / data collection"
+    description: Deployed Open Data Kit on an Apache server for survey data collection.
+    results: The tool was used to collect data for Nairobi county government and multiple NGOs.
+
+# ---- Education ------------------------------------------------------------
+education:
+  - institution: University of Eastern Africa Baraton
+    qualification: BSc Software Engineering (Cum Laude)
+
+# ---- Certifications (a link is optional) ----------------------------------
+certifications:
+  - name: Professional Scrum Master certification
+    url: https://www.credly.com/badges/560d6297-e2a0-440f-a014-b049ec6d872a
+  - name: IBM Banking and financial industry intro
+    url: https://www.youracclaim.com/badges/31c6fc06-51e1-4cc0-bd65-8896b52d0156?source=linked_in_profile
+  - name: Google Android Developer certification
+    url: https://www.credential.net/c17ce43c-14f4-4ae4-9ea2-ce0f524d6f21?key=e73fa2060d0bbaf05dcd43c693612ebabb8135370e18074797d794cf4e591ed8
+  - name: Android Unit Testing and Test-Driven Development
+    url: https://www.udemy.com/certificate/UC-5d359196-581c-461d-93f0-ab0cca513570/
+  - name: Introduction to Python for data science
+    url: https://courses.edx.org/certificates/e53afc173d2e4cd0818fbace7b1c54fd
+  - name: Cleaning data in Python
+    url: https://www.datacamp.com/statement-of-accomplishment/course/645685a7a24c350ce76fd2c0599b9f0c8a01cd9a
+  - name: Intermediate Python
+    url: https://www.datacamp.com/statement-of-accomplishment/course/5aeeb528e4575cc7a279d92581e78905ac8bbd8b
+  - name: Introduction to importing data in Python
+    url: https://www.datacamp.com/statement-of-accomplishment/course/ad88ebc8512e611bc2c1702517df68802f9be16c
+  - name: Python data science toolbox
+
+# ---- Links shown on the Contact page (https only) -------------------------
+links:
+  - label: GitHub
+    url: https://github.com/Wamae
+  - label: LinkedIn
+    url: https://www.linkedin.com/in/wamae-benson/
+  - label: Medium
+    url: https://wamae.medium.com/
+  - label: Twitter (X)
+    url: https://twitter.com/wamae1
+  - label: Kaggle
+    url: https://www.kaggle.com/bensonwamae
