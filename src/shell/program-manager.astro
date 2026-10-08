@@ -8,22 +8,24 @@ import { programGroups } from "./section-model";
 <Window id="program-manager" title="Program Manager" headingLevel={1} landmark={false} active>
   <MenuBar slot="menu" items={["File", "Options", "Window", "Help"]} />
   <div class="workspace">
-    {programGroups.map((group) => (
-      <Window
-        id={group.id}
-        title={group.label}
-        headingLevel={2}
-        landmark={false}
-        active={group.id === programGroups[0]?.id}
-      >
-        <ul class="icons">
-          {group.items.map((item) => (
-            <li>
-              <ProgramIcon label={item.label} href={item.href} icon={item.icon} />
-            </li>
-          ))}
-        </ul>
-      </Window>
+    {programGroups.map((group, index) => (
+      <div class="group" style={`--i: ${index}`}>
+        <Window
+          id={group.id}
+          title={group.label}
+          headingLevel={2}
+          landmark={false}
+          active={group.id === programGroups[0]?.id}
+        >
+          <ul class="icons">
+            {group.items.map((item) => (
+              <li>
+                <ProgramIcon label={item.label} href={item.href} icon={item.icon} />
+              </li>
+            ))}
+          </ul>
+        </Window>
+      </div>
     ))}
   </div>
 </Window>
@@ -36,6 +38,34 @@ import { programGroups } from "./section-model";
     margin: calc(var(--space-3) * -1);
     padding: var(--space-3);
     background: var(--color-workspace);
+  }
+  /* The group windows are items of the grid, and each fills its cell as it did before. */
+  .group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .group > :global(.window) {
+    flex: 1 1 auto;
+  }
+  /*
+   * The cascade: each group window appears a little after the one before, in a few discrete steps
+   * (opacity and a small shift only, so nothing moves the layout). Off when animations are off, and
+   * the global reduced motion rule in global.css switches it off for devices that ask for it.
+   */
+  :global(html[data-animations="on"]) .group {
+    animation: group-appear 150ms steps(3, end) both;
+    animation-delay: calc(var(--i) * 90ms);
+  }
+  @keyframes group-appear {
+    from {
+      opacity: 0;
+      transform: translate(-0.75rem, -0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
   .icons {
     display: flex;
