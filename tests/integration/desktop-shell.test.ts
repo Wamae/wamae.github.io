@@ -268,6 +268,34 @@ describe("animations", () => {
     );
   });
 
+  it("ships the hourglass cursor, and the styles point at it", async () => {
+    const svg = await site.readFileText("cursors/hourglass.svg");
+    expect(svg).toContain("<svg");
+    expect(svg).toMatch(/width="32"/);
+    const styles = await site.listFiles("_astro");
+    let referenced = false;
+    for (const name of styles.filter((file) => file.endsWith(".css"))) {
+      if ((await site.readFileText(`_astro/${name}`)).includes("/cursors/hourglass.svg")) {
+        referenced = true;
+      }
+    }
+    expect(referenced).toBe(true);
+  });
+
+  it("draws the hourglass only in the 16 VGA colours", async () => {
+    const svg = await site.readFileText("cursors/hourglass.svg");
+    const vga = new Set(
+      "000000 800000 008000 808000 000080 800080 008080 c0c0c0 808080 ff0000 00ff00 ffff00 0000ff ff00ff 00ffff ffffff".split(
+        " ",
+      ),
+    );
+    const used = [...svg.matchAll(/#([0-9a-fA-F]{6})\b/g)].map((m) =>
+      (m[1] as string).toLowerCase(),
+    );
+    expect(used.length).toBeGreaterThan(0);
+    for (const colour of used) expect(vga.has(colour), colour).toBe(true);
+  });
+
 });
 
 describe("the desktop home page", () => {

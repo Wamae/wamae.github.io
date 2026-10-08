@@ -1,4 +1,5 @@
 import { bindAnimationPreference } from "./animation-controller";
+import { createBusyIndicator } from "./busy-controller";
 import { startClock } from "./clock-controller";
 import { bindDesktopIcons } from "./desktop-icon-controller";
 import { bindSectionNavigation } from "./section-navigation";
@@ -17,7 +18,7 @@ function localStore(win: Window): Storage | null {
 
 // The only place the browser's document and window are handed to the controllers,
 // and the only place the controllers are joined to each other.
-bindAnimationPreference(document, window, localStore(window));
+const animations = bindAnimationPreference(document, window, localStore(window));
 bindStartMenu(document);
 bindDesktopIcons(document);
 const windowControls = createWindowControls(document, window, {
@@ -26,7 +27,8 @@ const windowControls = createWindowControls(document, window, {
   announcement: windowAnnouncement,
   maximizeAnnouncement,
 });
-windowControls.bind(bindSectionNavigation(document, window, windowControls));
+const busy = createBusyIndicator(document, window, animations.isEnabled);
+windowControls.bind(bindSectionNavigation(document, window, windowControls, busy));
 startClock(document, window);
 
 // Last, so that script-only controls appear only when everything above has been bound. If any

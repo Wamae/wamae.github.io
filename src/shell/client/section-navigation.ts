@@ -12,6 +12,7 @@ import { fragmentId } from "../fragment-id";
 import { readSavedLength, saveLength } from "../history-length-storage";
 import { resolveInternalRoute } from "../internal-route";
 import { routePaths } from "../section-model";
+import { noBusyIndicator, type BusyIndicator } from "./busy-controller";
 
 /** The parts of the page that change when another section opens. */
 const swapRegions = ["stage", "task-windows"] as const;
@@ -71,6 +72,7 @@ export function bindSectionNavigation(
   doc: Document,
   win: Window,
   observer: NavigationObserver,
+  busy: BusyIndicator = noBusyIndicator,
 ): SectionNavigation {
   let currentPath = resolveInternalRoute(win.location.href, win.location.href, routePaths);
   if (currentPath === null) {
@@ -119,6 +121,15 @@ export function bindSectionNavigation(
 
   /** Fetches a page and swaps it in. Only the newest load ever changes the page. */
   const load = async (path: string): Promise<Outcome> => {
+    busy.begin();
+    try {
+      return await loadPage(path);
+    } finally {
+      busy.end();
+    }
+  };
+
+  const loadPage = async (path: string): Promise<Outcome> => {
     cancelPending();
     const request = latestRequest;
     const abort = new AbortController();
