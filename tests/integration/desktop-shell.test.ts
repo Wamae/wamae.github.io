@@ -192,6 +192,66 @@ describe("section pages", () => {
   });
 });
 
+describe("window controls", () => {
+  const tagsOf = (html: string, pattern: RegExp) => [...html.matchAll(pattern)].map((m) => m[0]);
+
+  it.each(sectionRoutes)("$path has Minimize, Maximize and Close, named", ({ path }) => {
+    const html = pages[path] as string;
+    const buttons = tagsOf(html, /<button\b[^>]*data-window-action="[a-z]+"[^>]*>/g);
+    expect(buttons).toHaveLength(3);
+    expect(buttons[0]).toContain('aria-label="Minimize"');
+    expect(buttons[1]).toContain('aria-label="Maximize"');
+    expect(buttons[2]).toContain('aria-label="Close"');
+    for (const button of buttons) expect(button).toContain('type="button"');
+    // Without a script the Close control is a plain link to the desktop.
+    const links = tagsOf(html, /<a\b[^>]*class="control[^"]*"[^>]*>/g);
+    expect(links).toHaveLength(1);
+    expect(links[0]).toContain('href="/"');
+    expect(links[0]).toContain('aria-label="Close"');
+  });
+
+  it.each(sectionRoutes)("$path has script-only controls that start hidden", ({ path }) => {
+    const html = pages[path] as string;
+    expect(html).toMatch(/<button[^>]*data-audience="script"[^>]*data-window-action="minimize"/);
+    expect(html).toMatch(/<button[^>]*data-audience="script"[^>]*data-window-action="maximize"/);
+    expect(html).toMatch(/<button[^>]*data-task-window[^>]*aria-pressed="true"/);
+    // The script-only parts are hidden by a rule that needs the js class the script sets.
+    expect(html).toContain("data-audience");
+    expect(html).not.toMatch(/<html[^>]*class="[^"]*\bjs\b/);
+  });
+
+  it.each(sectionRoutes)(
+    "$path has a task button that is a link until the script runs",
+    ({ path }) => {
+      expect(pages[path]).toMatch(
+        new RegExp(`<a[^>]*class="task-button"[^>]*data-audience="plain"[^>]*href="${path}"`),
+      );
+    },
+  );
+
+  it.each(sectionRoutes)(
+    "$path has a scrollable client area that a keyboard can reach",
+    ({ path }) => {
+      const html = pages[path] as string;
+      const client = /<div[^>]*data-scroll-client[^>]*>/.exec(html)?.[0] ?? "";
+      expect(client).toContain('role="group"');
+      expect(client).toContain('tabindex="0"');
+      expect(client).toMatch(/aria-label="[^"]+ content"/);
+      expect(client).toMatch(/class="[^"]*nt-scroll/);
+      expect(html.match(/data-scroll-client/g)).toHaveLength(1);
+    },
+  );
+
+  it("shows no title bar controls on the welcome window or the programs inside the browser", () => {
+    for (const path of ["/", "/program-manager/", "/file-manager/"]) {
+      const html = pages[path] as string;
+      expect(html).not.toContain("control-box");
+      if (path === "/") expect(html).not.toContain("data-window-action");
+    }
+    expect(pages["/"]).not.toContain('class="controls"');
+  });
+});
+
 describe("the desktop home page", () => {
   it("has no browser window, only the welcome window with the owner name as h1", () => {
     expect(pages["/"]).not.toContain('id="browser"');

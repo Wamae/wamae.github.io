@@ -50,14 +50,39 @@ async function adoptStyles(doc: Document, next: Document): Promise<void> {
   await Promise.all(loading);
 }
 
+/** Told about every page that comes into view, so other controllers can follow along. */
+export interface NavigationObserver {
+  /** `swapped` is false when the page on screen was already the one chosen. */
+  navigated(path: string, swapped: boolean): void;
+}
+
+/** What other controllers may ask of the navigation. */
+export interface SectionNavigation {
+  /** Opens a page of the site as a new history entry. Resolves true once it is on screen. */
+  open(path: string): Promise<boolean>;
+}
+
 /**
  * Opens sections inside the browser window without a full page load: it fetches the static page,
  * swaps the changed regions, and keeps the address bar, title and history in step.
  * Any failure falls back to a normal page load, so the real pages always work.
  */
-export function bindSectionNavigation(doc: Document, win: Window): void {
+export function bindSectionNavigation(
+  doc: Document,
+  win: Window,
+  observer: NavigationObserver,
+): SectionNavigation {
   let currentPath = resolveInternalRoute(win.location.href, win.location.href, routePaths);
-  if (currentPath === null) return;
+  if (currentPath === null) {
+    // An address that is not a known route, such as /projects/index.html: nothing to swap into,
+    // so opening a page is a normal page load.
+    return {
+      open: (path) => {
+        win.location.assign(path);
+        return Promise.resolve(false);
+      },
+    };
+  }
   const store = (() => {
     try {
       return win.sessionStorage;
@@ -126,6 +151,7 @@ export function bindSectionNavigation(doc: Document, win: Window): void {
       const status = doc.querySelector("[data-page-status]");
       if (status !== null) status.textContent = next.title;
       currentPath = path;
+      observer.navigated(path, true);
       return finish("shown");
     } catch {
       return request === latestRequest ? finish("failed") : "superseded";
@@ -138,6 +164,14 @@ export function bindSectionNavigation(doc: Document, win: Window): void {
     else doc.getElementById("main")?.focus();
   };
 
+  /**
+   * Scrolls only as far as needed, in every scrolling ancestor. Aligning the place to the top
+   * would also scroll the desktop and the page, and could push the title bar out of view.
+   */
+  const showPlace = (place: Element) => {
+    place.scrollIntoView({ block: "nearest", inline: "nearest" });
+  };
+
   /** Moves focus to the place a fragment points at, or to the page when there is none. */
   const focusPlace = (hash: string) => {
     const id = fragmentId(hash);
@@ -148,8 +182,38 @@ export function bindSectionNavigation(doc: Document, win: Window): void {
     }
     // A plain element can take focus from a script once it has a tabindex.
     if (place.tabIndex < 0 && !place.hasAttribute("tabindex")) place.tabIndex = -1;
-    place.focus();
-    place.scrollIntoView();
+    place.focus({ preventScroll: true });
+    showPlace(place);
+  };
+
+  /** Opens a page as a new history entry, or falls back to a normal page load. */
+  const openPage = async (path: string, hash: string, href: string): Promise<boolean> => {
+    if (path === pendingPath) return false;
+    if (path === currentPath) {
+      // A Back or Forward that is still loading has already moved the browser URL elsewhere.
+      // The page on screen is the one chosen, so it is opened as a new entry in that place.
+      const urlPath = resolveInternalRoute(win.location.href, win.location.href, routePaths);
+      cancelPending();
+      if (urlPath !== currentPath) {
+        position = afterOpeningPage(position);
+        win.history.pushState(writePosition(position), "", path);
+        syncToolbar();
+      }
+      observer.navigated(path, false);
+      doc.getElementById("main")?.focus();
+      return true;
+    }
+    const outcome = await load(path);
+    if (outcome === "superseded") return false;
+    if (outcome === "failed") {
+      win.location.assign(href);
+      return false;
+    }
+    position = afterOpeningPage(position);
+    win.history.pushState(writePosition(position), "", `${path}${hash}`);
+    syncToolbar();
+    focusPlace(hash);
+    return true;
   };
 
   doc.addEventListener("click", (event) => {
@@ -187,31 +251,7 @@ export function bindSectionNavigation(doc: Document, win: Window): void {
     const path = resolveInternalRoute(link.href, win.location.href, routePaths);
     if (path === null) return;
     event.preventDefault();
-    if (path === pendingPath) return;
-    if (path === currentPath) {
-      // A Back or Forward that is still loading has already moved the browser URL elsewhere.
-      // The page on screen is the one chosen, so it is opened as a new entry in that place.
-      const urlPath = resolveInternalRoute(win.location.href, win.location.href, routePaths);
-      cancelPending();
-      if (urlPath !== currentPath) {
-        position = afterOpeningPage(position);
-        win.history.pushState(writePosition(position), "", path);
-        syncToolbar();
-      }
-      doc.getElementById("main")?.focus();
-      return;
-    }
-    void load(path).then((outcome) => {
-      if (outcome === "superseded") return;
-      if (outcome === "failed") {
-        win.location.assign(link.href);
-        return;
-      }
-      position = afterOpeningPage(position);
-      win.history.pushState(writePosition(position), "", `${path}${link.hash}`);
-      syncToolbar();
-      focusPlace(link.hash);
-    });
+    void openPage(path, link.hash, link.href);
   });
 
   win.addEventListener("popstate", (event) => {
@@ -225,6 +265,7 @@ export function bindSectionNavigation(doc: Document, win: Window): void {
     if (path === currentPath) {
       cancelPending();
       syncToolbar();
+      observer.navigated(path, false);
       return;
     }
     const previousId = doc.activeElement?.id ?? "";
@@ -237,9 +278,11 @@ export function bindSectionNavigation(doc: Document, win: Window): void {
       syncToolbar();
       focusAfterSwap(previousId);
       // Going Back to an entry with a fragment shows that place, as a normal page would.
-      doc.getElementById(fragmentId(win.location.hash))?.scrollIntoView();
+      const place = doc.getElementById(fragmentId(win.location.hash));
+      if (place !== null) showPlace(place);
     });
   });
 
   syncToolbar();
+  return { open: (path) => openPage(path, "", path) };
 }

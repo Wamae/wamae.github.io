@@ -6,7 +6,9 @@ import type { IconName } from "./icon-names";
 import type { LinkGroup } from "../shell/section-model";
 
 // The taskbar: the Start button, a button for the open browser window, and a clock.
-// The clock is filled in by a tiny script and stays empty without JavaScript.
+// The clock is filled in by a tiny script and stays empty without JavaScript. The window's
+// button is a toggle button once the script runs (pressed while the window shows, not pressed
+// while it is minimized), and a plain link to the window's page before that and without a script.
 interface Props {
   groups: readonly LinkGroup[];
   openWindow?: { title: string; href: string; icon: IconName } | undefined;
@@ -18,10 +20,22 @@ const { groups, openWindow } = Astro.props;
   <StartMenu groups={groups} />
   <div class="task-windows" data-swap="task-windows">
     {openWindow !== undefined && (
-      <a class="task-button" href={openWindow.href} aria-current="page">
-        <Icon name={openWindow.icon} />
-        <span class="task-title">{openWindow.title}</span>
-      </a>
+      <>
+        <a class="task-button" data-audience="plain" href={openWindow.href} aria-current="page">
+          <Icon name={openWindow.icon} />
+          <span class="task-title">{openWindow.title}</span>
+        </a>
+        <button
+          class="task-button"
+          data-audience="script"
+          data-task-window
+          type="button"
+          aria-pressed="true"
+        >
+          <Icon name={openWindow.icon} />
+          <span class="task-title">{openWindow.title}</span>
+        </button>
+      </>
     )}
   </div>
   <Panel variant="sunken" class="clock-field">
@@ -34,6 +48,7 @@ const { groups, openWindow } = Astro.props;
     position: sticky;
     bottom: 0;
     z-index: 10;
+    flex: none;
     height: var(--taskbar-height);
     display: flex;
     align-items: center;
@@ -59,7 +74,22 @@ const { groups, openWindow } = Astro.props;
     color: var(--color-button-text);
     border: 1px solid var(--color-window-frame);
     box-shadow: var(--bevel-sunken);
+    font: inherit;
     text-decoration: none;
+    cursor: pointer;
+  }
+  /* A minimized window's button stands out raised, like an unpressed button. */
+  .task-button[aria-pressed="false"] {
+    box-shadow: var(--bevel-raised);
+  }
+  .task-button[data-audience="script"] {
+    display: none;
+  }
+  :global(.js) .task-button[data-audience="script"] {
+    display: flex;
+  }
+  :global(.js) .task-button[data-audience="plain"] {
+    display: none;
   }
   .task-title {
     overflow: hidden;

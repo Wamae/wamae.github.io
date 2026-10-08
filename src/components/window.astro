@@ -1,7 +1,8 @@
 ---
 // A window: frame, title bar, optional menu bar and status bar, and a client area.
-// The title is a real heading, so it names the window. The control box and the
-// minimise and maximise buttons are decorative until the window manager exists.
+// The title is a real heading, so it names the window. Real title bar controls come in through
+// the "controls" slot; a window without them (the welcome window, the programs inside the
+// browser window) shows none, so nothing looks clickable and is dead.
 interface Props {
   id: string;
   title: string;
@@ -11,6 +12,10 @@ interface Props {
   /** True for a top-level region landmark, false for a window nested in another. */
   landmark?: boolean;
   class?: string;
+  /** The client area scrolls inside the window and is a named region a keyboard can focus. */
+  scrollable?: boolean;
+  /** The name of the scrollable region. */
+  clientLabel?: string;
 }
 const {
   id,
@@ -19,12 +24,15 @@ const {
   active = false,
   landmark = true,
   class: className,
+  scrollable = false,
+  clientLabel,
 } = Astro.props;
 const Frame = landmark ? "section" : "div";
 const Heading = headingLevel === null ? "span" : (`h${headingLevel}` as const);
 const titleId = `${id}-title`;
 const hasMenu = Astro.slots.has("menu");
 const hasToolbar = Astro.slots.has("toolbar");
+const hasControls = Astro.slots.has("controls");
 const hasStatus = Astro.slots.has("status");
 ---
 
@@ -35,18 +43,24 @@ const hasStatus = Astro.slots.has("status");
   role={landmark ? undefined : "group"}
 >
   <div class="titlebar">
-    <span class="control-box" aria-hidden="true"></span>
     <Heading class="title" id={titleId}>
       {title}
     </Heading>
-    <span class="controls" aria-hidden="true">
-      <span class="control minimise"></span>
-      <span class="control maximise"></span>
-    </span>
+    {hasControls && (
+      <span class="controls">
+        <slot name="controls" />
+      </span>
+    )}
   </div>
   {hasMenu && <slot name="menu" />}
   {hasToolbar && <slot name="toolbar" />}
-  <div class="client">
+  <div
+    class:list={["client", { "nt-scroll": scrollable }]}
+    role={scrollable ? "group" : undefined}
+    tabindex={scrollable ? 0 : undefined}
+    aria-label={scrollable ? (clientLabel ?? title) : undefined}
+    data-scroll-client={scrollable ? "" : undefined}
+  >
     <slot />
   </div>
   {hasStatus && <slot name="status" />}
@@ -65,6 +79,8 @@ const hasStatus = Astro.slots.has("status");
   }
   .client {
     flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
   }
   .titlebar {
     display: flex;
@@ -73,6 +89,8 @@ const hasStatus = Astro.slots.has("status");
     background: var(--color-title-inactive-bg);
     color: var(--color-title-inactive-text);
     border: 1px solid var(--color-window-frame);
+    /* A double click on the title bar maximizes, and must not select the title. */
+    user-select: none;
   }
   .active > .titlebar {
     background: var(--color-title-active-bg);
@@ -91,39 +109,14 @@ const hasStatus = Astro.slots.has("status");
     line-height: 1.75rem;
     text-align: center;
   }
-  .control-box,
-  .control {
-    position: relative;
-    flex: none;
-    width: 1.75rem;
-    background: var(--color-button-face);
-    color: var(--color-button-text);
-    box-shadow: var(--bevel-raised);
-  }
   .controls {
     display: flex;
+    flex: none;
     gap: 2px;
   }
-  .control-box::before {
-    content: "";
-    position: absolute;
-    left: 25%;
-    right: 25%;
-    top: calc(50% - 1px);
-    height: 3px;
-    background: currentColor;
-  }
-  .control::before {
-    content: "";
-    position: absolute;
-    inset: 30%;
-    background: currentColor;
-  }
-  .minimise::before {
-    clip-path: polygon(0 20%, 100% 20%, 50% 80%);
-  }
-  .maximise::before {
-    clip-path: polygon(50% 20%, 100% 80%, 0 80%);
+  /* A class that sets display would otherwise beat the hidden attribute. */
+  .window[hidden] {
+    display: none;
   }
   .client {
     background: var(--color-client-bg);
@@ -131,5 +124,17 @@ const hasStatus = Astro.slots.has("status");
     border: 1px solid var(--color-window-frame);
     box-shadow: var(--bevel-sunken);
     padding: var(--space-3);
+  }
+  /* The ring is drawn inside the area, where the client's own colour is behind it. */
+  .client:focus-visible {
+    background: var(--color-client-bg);
+    outline-color: var(--color-focus-ring);
+    outline-offset: -4px;
+  }
+  /* On a short screen the window is as tall as its content, and the page scrolls. */
+  @media (max-height: 30rem) {
+    .client.nt-scroll {
+      flex: none;
+    }
   }
 </style>

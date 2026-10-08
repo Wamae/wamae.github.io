@@ -1,0 +1,122 @@
+---
+// A title bar control. It is always labelled for assistive technology, and its glyph is drawn in CSS.
+// `audience` says who gets it: "script" is a real button that the script drives and that stays
+// hidden until the script has set the `js` class on the page, "plain" is a link that stands in
+// until then and when there is no script, so a control is never there and dead.
+interface Props {
+  kind: "minimize" | "maximize" | "close";
+  audience: "script" | "plain";
+  /** Where the plain link goes. */
+  href?: string;
+}
+const { kind, audience, href } = Astro.props;
+const label = { minimize: "Minimize", maximize: "Maximize", close: "Close" }[kind];
+---
+
+{audience === "plain" ? (
+  <a class:list={["control", kind]} data-audience="plain" href={href} aria-label={label}>
+    <span class="glyph" aria-hidden="true"></span>
+  </a>
+) : (
+  <button
+    class:list={["control", kind]}
+    data-audience="script"
+    data-window-action={kind}
+    type="button"
+    aria-label={label}
+  >
+    <span class="glyph" aria-hidden="true"></span>
+  </button>
+)}
+
+<style>
+  /* The hit area is at least 24 by 24 CSS pixels (WCAG 2.5.8), on a coarse pointer larger. */
+  .control {
+    position: relative;
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    min-height: 1.75rem;
+    padding: 0;
+    background: var(--color-button-face);
+    color: var(--color-button-text);
+    border: 0;
+    box-shadow: var(--bevel-raised);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .control:active {
+    box-shadow: var(--bevel-sunken);
+  }
+  .control:focus-visible {
+    outline-offset: -4px;
+  }
+  @media (pointer: coarse) {
+    .control {
+      width: 2.5rem;
+      min-height: 2.5rem;
+    }
+  }
+  .control[data-audience="script"] {
+    display: none;
+  }
+  :global(.js) .control[data-audience="script"] {
+    display: flex;
+  }
+  :global(.js) .control[data-audience="plain"] {
+    display: none;
+  }
+  /* The window is always full size on a phone, so there is nothing to maximize there. */
+  @media (max-width: 39.99rem) {
+    :global(.js) .control.maximize[data-audience="script"] {
+      display: none;
+    }
+  }
+  .glyph {
+    position: relative;
+    display: block;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .glyph::before,
+  .glyph::after {
+    content: "";
+    position: absolute;
+    background: currentColor;
+  }
+  /* The NT minimise arrow. */
+  .minimize .glyph::before {
+    inset: 0;
+    clip-path: polygon(0 20%, 100% 20%, 50% 80%);
+  }
+  /* NT maximise arrow up, and for a maximized window the restore pair of arrows. */
+  .maximize .glyph::before {
+    inset: 0;
+    clip-path: polygon(50% 20%, 100% 80%, 0 80%);
+  }
+  .maximize[data-mode="restore"] .glyph::before {
+    inset: 0 0 50% 0;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .maximize[data-mode="restore"] .glyph::after {
+    inset: 50% 0 0 0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  /* A cross of two bars. */
+  .close .glyph::before,
+  .close .glyph::after {
+    left: 0;
+    right: 0;
+    top: calc(50% - 1px);
+    height: 2px;
+  }
+  .close .glyph::before {
+    transform: rotate(45deg);
+  }
+  .close .glyph::after {
+    transform: rotate(-45deg);
+  }
+</style>
