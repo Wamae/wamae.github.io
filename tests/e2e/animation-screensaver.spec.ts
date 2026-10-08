@@ -52,6 +52,28 @@ test.describe("the screen saver", () => {
     await expect(startButton(page)).toBeFocused();
   });
 
+  test("on a short screen the saver stays up after it starts, despite the focus and scroll events of the page", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 640, height: 400 });
+    await page.goto("/");
+    await startButton(page).click();
+    await page.getByRole("button", { name: "Screen Saver" }).click();
+    await expect(saver(page)).toBeVisible();
+    // It is still there once frames have been drawn on it.
+    await expect
+      .poll(() =>
+        saver(page).evaluate((canvas: HTMLCanvasElement) => {
+          const data = canvas
+            .getContext("2d")
+            ?.getImageData(0, 0, canvas.width, canvas.height).data;
+          return data !== undefined && data.some((value, index) => index % 4 !== 3 && value > 0);
+        }),
+      )
+      .toBe(true);
+    await expect(html(page)).toHaveAttribute("data-screensaver", "on");
+  });
+
   test("the Start menu item works from the keyboard", async ({ page }) => {
     await page.goto("/");
     await startButton(page).focus();
