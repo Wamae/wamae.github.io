@@ -171,12 +171,14 @@ describe("bold figures", () => {
       "66%",
       "3 months",
       "3-4 weeks",
+      "GDPR",
       "1000+",
       "100K",
       "10 million",
       "25%",
       "90%",
       "5",
+      "COVID-19",
       "100",
     ]);
     expect(strongTexts("projects")).toEqual([
@@ -184,11 +186,13 @@ describe("bold figures", () => {
       "66%",
       "3 months",
       "3-4 weeks",
+      "GDPR",
       "1000+",
       "100K",
       "10 million",
       "25%",
       "90%",
+      "COVID-19",
     ]);
     expect(strongTexts("contact")).toEqual([]);
   });
