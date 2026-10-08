@@ -71,7 +71,10 @@ a {
   outline-offset: 2px;
 }
 
-/* Nothing animates in this milestone. This keeps it true when animation arrives later. */
+/*
+ * Animations are decorative extras. The script switches them with data-animations on the page, and
+ * this rule keeps every animation and transition off when the device asks for reduced motion.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

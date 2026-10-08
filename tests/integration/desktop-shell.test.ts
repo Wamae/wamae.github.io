@@ -252,6 +252,24 @@ describe("window controls", () => {
   });
 });
 
+describe("animations", () => {
+  it.each(routes)("$path has the Animations toggle, shown only by the script", ({ path }) => {
+    const html = pages[path] as string;
+    const toggle = /<button[^>]*data-animations-toggle[^>]*>/.exec(html)?.[0] ?? "";
+    expect(toggle).toContain('data-audience="script"');
+    expect(toggle).toContain('aria-label="Animations"');
+    expect(toggle).toContain('aria-pressed="true"');
+    expect(toggle).toContain('type="button"');
+    expect(html.match(/data-animations-toggle/g)).toHaveLength(1);
+    // The toggle sits in the taskbar, after the window buttons and before the clock.
+    expect(html.indexOf("data-animations-toggle")).toBeLessThan(html.indexOf("data-clock"));
+    expect(html.indexOf("data-animations-toggle")).toBeGreaterThan(
+      html.indexOf('data-swap="task-windows"'),
+    );
+  });
+
+});
+
 describe("the desktop home page", () => {
   it("has no browser window, only the welcome window with the owner name as h1", () => {
     expect(pages["/"]).not.toContain('id="browser"');
