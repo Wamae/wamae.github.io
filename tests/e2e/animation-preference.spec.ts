@@ -50,6 +50,17 @@ test.describe("the Animations button and reduced motion", () => {
     await expect.poll(async () => (await outlines(page)).length).toBe(1);
   });
 
+  test("focus on the button moves to Start when reduced motion switches it off", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await toggle(page).focus();
+    await expect(toggle(page)).toBeFocused();
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(html(page)).toHaveAttribute("data-animations", "off");
+    await expect(startButton(page)).toBeFocused();
+  });
+
   test("ignores a saved value that it did not write", async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem("desktop-animations", "maybe"));
     await page.goto("/");
@@ -189,3 +200,41 @@ test("without JavaScript there is no Animations button, no Screen Saver item and
   await expect(page.locator("#program-manager .group")).toHaveCount(3);
   await context.close();
 });
+
+for (const width of [320, 375, 414]) {
+  test(`at ${width}px the window's button keeps its label and the Animations button is a picture`, async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      viewport: { width, height: 667 },
+      hasTouch: true,
+      isMobile: true,
+    });
+    const page = await context.newPage();
+    await page.goto("/projects/");
+    const task = taskbar(page).locator(".task-button:visible");
+    await expect(task).toHaveText("Projects");
+    const label = await task.locator(".task-title").evaluate((el) => ({
+      cut: el.scrollWidth > el.clientWidth,
+      width: el.getBoundingClientRect().width,
+    }));
+    expect(label.cut).toBe(false);
+    expect((await boxOf(task)).width).toBeGreaterThanOrEqual(100);
+
+    const tray = toggle(page);
+    const box = await boxOf(tray);
+    expect(box.width).toBeGreaterThanOrEqual(24);
+    expect(box.height).toBeGreaterThanOrEqual(24);
+    // Only the picture shows, and it is not on its own as the name.
+    expect(box.width).toBeLessThan(60);
+    await expect(tray).toHaveAttribute("aria-label", "Animations");
+    const start = await boxOf(startButton(page));
+    expect(start.width).toBeGreaterThanOrEqual(56);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await tray.tap();
+    await expect(tray).toHaveAttribute("aria-pressed", "false");
+    await context.close();
+  });
+}

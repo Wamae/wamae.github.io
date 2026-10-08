@@ -69,6 +69,12 @@ const { groups } = Astro.props;
   .start-button::-webkit-details-marker {
     display: none;
   }
+  @media (max-width: 29.99rem) {
+    .start-button {
+      gap: var(--space-1);
+      padding: 0 var(--space-2);
+    }
+  }
   .start[open] > .start-button {
     box-shadow: var(--bevel-sunken);
   }

@@ -47,7 +47,10 @@ const { groups, openWindow } = Astro.props;
     aria-pressed="true"
     aria-label="Animations"
   >
-    <span aria-hidden="true">Animations</span>
+    <span class="glyph" aria-hidden="true"></span>
+    <span class="word" aria-hidden="true">
+      Animations
+    </span>
     <span class="state" aria-hidden="true">
       On
     </span>
@@ -137,10 +140,71 @@ const { groups, openWindow } = Astro.props;
   .tray-button .state {
     font-weight: 700;
   }
-  /* On a phone the word for the state goes, to leave room: the pressed look and the name say it. */
-  @media (max-width: 29.99rem) {
+  /* A small picture for the button: a play triangle, struck through when animations are off. */
+  .tray-button .glyph {
+    display: none;
+    position: relative;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  .tray-button .glyph::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    clip-path: polygon(15% 0, 100% 50%, 15% 100%);
+  }
+  .tray-button[aria-pressed="false"] .glyph::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    top: calc(50% - 1px);
+    height: 2px;
+    background: currentColor;
+    transform: rotate(-45deg);
+  }
+  /* On a phone the button is the picture alone, so the window's button keeps room for its label.
+     The name and the pressed look still say what it is and whether it is on. */
+  @media (max-width: 39.99rem) {
+    .tray-button {
+      justify-content: center;
+      padding: 0;
+      width: 2.25rem;
+    }
+    .tray-button .glyph {
+      display: block;
+    }
+    .tray-button .word,
     .tray-button .state {
       display: none;
+    }
+    .task-windows {
+      min-width: 7rem;
+    }
+    .task-button {
+      gap: var(--space-1);
+      padding: 0 var(--space-2);
+    }
+  }
+  @media (max-width: 39.99rem) and (pointer: coarse) {
+    .tray-button {
+      width: 2.5rem;
+    }
+  }
+  .taskbar :global(.clock-field) {
+    flex: none;
+    min-width: 4.5rem;
+    text-align: center;
+  }
+  /* The clock gives up room before the window's label does. This comes after its own rule. */
+  @media (max-width: 29.99rem) {
+    .taskbar {
+      gap: var(--space-1);
+    }
+    .taskbar :global(.clock-field) {
+      min-width: 0;
+      padding: 0 var(--space-1);
     }
   }
   /* An etched look for a switched-off control: the device asks for reduced motion. */
@@ -154,10 +218,5 @@ const { groups, openWindow } = Astro.props;
       min-height: 2.5rem;
       min-width: 2.5rem;
     }
-  }
-  .taskbar :global(.clock-field) {
-    flex: none;
-    min-width: 4.5rem;
-    text-align: center;
   }
 </style>
