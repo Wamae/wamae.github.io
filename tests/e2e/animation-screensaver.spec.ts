@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { html, icons, status, browserWindow, saver, startButton, boxOf } from "./animation-helpers";
 
 test.describe("the screen saver", () => {
@@ -86,10 +86,8 @@ test.describe("the screen saver", () => {
     await expect(saver(page)).toHaveCount(0);
   });
 
-  for (const dismissal of ["pointer move", "click", "wheel", "touch"] as const) {
-    test(`a ${dismissal} stops it, and is not passed on to the page`, async ({ browser }) => {
-      const context = await browser.newContext({ hasTouch: dismissal === "touch" });
-      const page = await context.newPage();
+  for (const dismissal of ["pointer move", "wheel"] as const) {
+    test(`a ${dismissal} stops it`, async ({ page }) => {
       await page.goto("/");
       await startButton(page).click();
       await page.getByRole("button", { name: "Screen Saver" }).click();
@@ -97,19 +95,147 @@ test.describe("the screen saver", () => {
       if (dismissal === "pointer move") {
         await page.mouse.move(300, 300);
         await page.mouse.move(340, 340);
-      } else if (dismissal === "click") {
-        await page.mouse.click(200, 200);
-      } else if (dismissal === "wheel") {
+      } else {
         await page.mouse.move(400, 300);
         await page.mouse.wheel(0, 200);
-      } else {
-        await page.touchscreen.tap(200, 200);
       }
       await expect(saver(page)).toHaveCount(0);
       await expect(page).toHaveURL(/\/$/);
-      await context.close();
     });
   }
+
+  /**
+   * Leaves the pointer on the Projects folder and the page idle until the saver starts, so that
+   * a press on that spot lands on the folder the moment the saver goes. (A pointer that moves
+   * first would stop the saver by moving, and the press after it would be an ordinary one.)
+   */
+  async function idleOverFolder(page: Page) {
+    await page.clock.install();
+    await page.goto("/");
+    const folder = icons(page).getByRole("link", { name: "Projects" });
+    const box = await boxOf(folder);
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.clock.fastForward(95_000);
+    await expect(saver(page)).toBeVisible();
+    return { folder, x, y };
+  }
+
+  test("a mouse click on a folder under the saver only stops it: nothing opens or is selected", async ({
+    page,
+  }) => {
+    const { folder, x, y } = await idleOverFolder(page);
+    await page.mouse.click(x, y);
+    await expect(saver(page)).toHaveCount(0);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(browserWindow(page)).toHaveCount(0);
+    await expect(folder).not.toHaveAttribute("data-selected", "true");
+    // The click after that is an ordinary one again.
+    await folder.click();
+    await expect(folder).toHaveAttribute("data-selected", "true");
+  });
+
+  test("a tap on a folder under the saver only stops it: nothing opens", async ({ browser }) => {
+    const context = await browser.newContext({ hasTouch: true });
+    const page = await context.newPage();
+    const { x, y } = await idleOverFolder(page);
+    await page.touchscreen.tap(x, y);
+    await expect(saver(page)).toHaveCount(0);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(browserWindow(page)).toHaveCount(0);
+    await context.close();
+  });
+
+  test("a click on the Start button under the saver does not open the menu", async ({ page }) => {
+    await page.clock.install();
+    await page.goto("/");
+    const start = await boxOf(startButton(page));
+    const x = start.x + start.width / 2;
+    const y = start.y + start.height / 2;
+    await page.mouse.move(x, y);
+    await page.clock.fastForward(95_000);
+    await expect(saver(page)).toBeVisible();
+    await page.mouse.click(x, y);
+    await expect(saver(page)).toHaveCount(0);
+    await expect(page.locator("details[data-start-menu]")).not.toHaveAttribute("open", "");
+  });
+
+  test("a click made by a script or assistive technology stops it and opens nothing", async ({
+    page,
+  }) => {
+    await idleOverFolder(page);
+    await page.evaluate(() => document.querySelector<HTMLElement>("[data-desktop-icon]")?.click());
+    await expect(saver(page)).toHaveCount(0);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(browserWindow(page)).toHaveCount(0);
+  });
+
+  test("a right click stops it without a context menu reaching the page", async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { menus: number }).menus = 0;
+      window.addEventListener("contextmenu", () => {
+        (window as unknown as { menus: number }).menus++;
+      });
+    });
+    const { x, y } = await idleOverFolder(page);
+    await page.mouse.click(x, y, { button: "right" });
+    await expect(saver(page)).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as { menus: number }).menus)).toBe(0);
+  });
+
+  test("a key held down stops it once, and its repeats do not reach the page", async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { repeats: number }).repeats = 0;
+      window.addEventListener("keydown", (event) => {
+        if (event.repeat) (window as unknown as { repeats: number }).repeats++;
+      });
+    });
+    await page.clock.install();
+    await page.goto("/");
+    const folder = icons(page).getByRole("link", { name: "Projects" });
+    await folder.focus();
+    await page.clock.fastForward(95_000);
+    await expect(saver(page)).toBeVisible();
+    await page.keyboard.down("Enter");
+    await page.keyboard.down("Enter");
+    await page.keyboard.down("Enter");
+    await page.keyboard.up("Enter");
+    await expect(saver(page)).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as { repeats: number }).repeats)).toBe(0);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(browserWindow(page)).toHaveCount(0);
+    await expect(folder).toBeFocused();
+    // The next key press is an ordinary one again.
+    await page.keyboard.press("Enter");
+    await expect(browserWindow(page)).toBeVisible();
+  });
+
+  test("a click that follows the press that stopped it, as some browsers send, is swallowed", async ({
+    page,
+  }) => {
+    const { folder } = await idleOverFolder(page);
+    await page.mouse.down();
+    await expect(saver(page)).toHaveCount(0);
+    await folder.dispatchEvent("click", { detail: 1 });
+    await page.mouse.up();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(browserWindow(page)).toHaveCount(0);
+    await expect(folder).not.toHaveAttribute("data-selected", "true");
+  });
+
+  test("focus that moved while the saver showed stays where it moved", async ({ page }) => {
+    await page.clock.install();
+    await page.goto("/projects/");
+    await page.locator("#browser-address").focus();
+    await page.clock.fastForward(95_000);
+    await expect(saver(page)).toBeVisible();
+    await page.evaluate(() => document.querySelector<HTMLElement>("#browser a.button")?.focus());
+    await expect(saver(page)).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Home" })).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "Home" })).not.toBeFocused();
+  });
 
   test("stops when the page is hidden, and when animations are turned off", async ({ page }) => {
     await page.goto("/");
@@ -129,9 +255,8 @@ test.describe("the screen saver", () => {
     await startButton(page).click();
     await page.getByRole("button", { name: "Screen Saver" }).click();
     await expect(saver(page)).toBeVisible();
-    await page.evaluate(() =>
-      document.querySelector<HTMLButtonElement>("[data-animations-toggle]")?.click(),
-    );
+    // The device starts asking for reduced motion while the saver shows.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(saver(page)).toHaveCount(0);
     await expect(html(page)).toHaveAttribute("data-animations", "off");
   });
