@@ -6,7 +6,8 @@ import type { IconName } from "./icon-names";
 import type { LinkGroup } from "../shell/section-model";
 
 // The taskbar: the Start button, a button for the open browser window, and a clock.
-// The clock is filled in by a tiny script and stays empty without JavaScript. The window's
+// The clock is filled in by a tiny script and stays empty without JavaScript. The Animations
+// button in the tray is a toggle that only the script reveals, once everything is bound. The window's
 // button is a toggle button once the script runs (pressed while the window shows, not pressed
 // while it is minimized), and a plain link to the window's page before that and without a script.
 interface Props {
@@ -38,6 +39,19 @@ const { groups, openWindow } = Astro.props;
       </>
     )}
   </div>
+  <button
+    class="tray-button"
+    type="button"
+    data-animations-toggle
+    data-audience="script"
+    aria-pressed="true"
+    aria-label="Animations"
+  >
+    <span aria-hidden="true">Animations</span>
+    <span class="state" aria-hidden="true">
+      On
+    </span>
+  </button>
   <Panel variant="sunken" class="clock-field">
     <time class="clock" data-clock></time>
   </Panel>
@@ -60,6 +74,7 @@ const { groups, openWindow } = Astro.props;
     box-shadow: var(--bevel-raised);
   }
   .task-windows {
+    display: flex;
     flex: 1 1 auto;
     min-width: 0;
   }
@@ -67,6 +82,7 @@ const { groups, openWindow } = Astro.props;
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    min-width: 0;
     max-width: 14rem;
     min-height: 2.25rem;
     padding: 0 var(--space-3);
@@ -95,6 +111,49 @@ const { groups, openWindow } = Astro.props;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .tray-button {
+    display: none;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 2.25rem;
+    min-width: 1.5rem;
+    padding: 0 var(--space-2);
+    background: var(--color-button-face);
+    color: var(--color-button-text);
+    border: 1px solid var(--color-window-frame);
+    box-shadow: var(--bevel-raised);
+    font: inherit;
+    cursor: pointer;
+  }
+  :global(.js) .tray-button {
+    display: flex;
+  }
+  /* On means pressed in, and the word says it too, so it is not shown by shape alone. */
+  .tray-button[aria-pressed="true"] {
+    box-shadow: var(--bevel-sunken);
+  }
+  .tray-button .state {
+    font-weight: 700;
+  }
+  /* On a phone the word for the state goes, to leave room: the pressed look and the name say it. */
+  @media (max-width: 29.99rem) {
+    .tray-button .state {
+      display: none;
+    }
+  }
+  /* An etched look for a switched-off control: the device asks for reduced motion. */
+  .tray-button:disabled {
+    color: var(--color-button-disabled-text);
+    text-shadow: 1px 1px 0 var(--color-bevel-highlight);
+    cursor: not-allowed;
+  }
+  @media (pointer: coarse) {
+    .tray-button {
+      min-height: 2.5rem;
+      min-width: 2.5rem;
+    }
   }
   .taskbar :global(.clock-field) {
     flex: none;
