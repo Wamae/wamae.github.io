@@ -2,9 +2,11 @@
 import Button from "./button.astro";
 import MenuBar from "./menu-bar.astro";
 import StatusBar from "./status-bar.astro";
+import WindowControl from "./window-control.astro";
 import Window from "./window.astro";
 
-// An in-desktop browser window. The title bar, menu bar and status bar are chrome. The toolbar has
+// An in-desktop browser window. The menu bar and status bar are chrome. The title bar has Minimize,
+// Maximize and Close, which the script reveals (Close is a plain link until then). The toolbar has
 // real controls: Back and Forward are disabled until the script enables them, Home is a link,
 // and the address bar is a read-only text field named "Address". The page content is the slot.
 interface Props {
@@ -21,8 +23,16 @@ const { title, address, homeHref } = Astro.props;
   title={`${title} - Web Browser`}
   headingLevel={null}
   landmark={false}
+  scrollable
+  clientLabel={`${title} content`}
   active
 >
+  <Fragment slot="controls">
+    <WindowControl kind="minimize" audience="script" />
+    <WindowControl kind="maximize" audience="script" />
+    <WindowControl kind="close" audience="script" />
+    <WindowControl kind="close" audience="plain" href={homeHref} />
+  </Fragment>
   <MenuBar slot="menu" items={["File", "Edit", "View", "Go", "Help"]} />
   <div class="toolbar" slot="toolbar" role="group" aria-label="Browser toolbar">
     <Button id="browser-back" disabled>
@@ -61,9 +71,46 @@ const { title, address, homeHref } = Astro.props;
     color: var(--color-window-text);
     border-bottom: 1px solid var(--color-window-frame);
   }
-  /* The window fills the desktop above the taskbar, and a long page grows it. */
+  /* The window has a size and its content scrolls inside it, so a long page does not grow it.
+     On a phone it fills the desktop. On a wider screen it is a normal window near the top left:
+     80% of the width and the height of the desktop less a margin. Maximized, it fills the desktop. */
   :global(.browser) {
-    flex: 1 1 auto;
+    flex: 1 1 0;
+    min-height: 12rem;
+  }
+  /* The selectors are as specific as they are so that they win over the window's own rule that lets
+     it shrink. The margin on the left is part of the width the window may take. */
+  @media (min-width: 40rem) {
+    :global(.stage > .window.browser) {
+      width: 80%;
+      min-width: min(calc(100% - var(--space-4)), 30rem);
+      margin: var(--space-2) 0 var(--space-4) var(--space-4);
+    }
+    :global(.stage > .window.browser[data-maximized]) {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: auto;
+      min-width: 0;
+      margin: 0;
+    }
+  }
+  /* A short screen: the window is as tall as its content. Maximized it is fixed above the taskbar
+     and its content scrolls inside it, so it never scrolls out of place with the page. */
+  @media (max-height: 30rem) {
+    :global(.stage > .window.browser) {
+      flex: none;
+      min-height: 0;
+    }
+  }
+  @media (min-width: 40rem) and (max-height: 30rem) {
+    :global(.stage > .window.browser[data-maximized]) {
+      position: fixed;
+      inset: 0 0 var(--taskbar-height) 0;
+    }
+    :global(.stage > .window.browser[data-maximized] > [data-scroll-client]) {
+      flex: 1 1 0;
+    }
   }
   .address-row {
     display: flex;

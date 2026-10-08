@@ -160,7 +160,9 @@ test("the taskbar shows a button for the open window and none on the desktop", a
   await page.goto("/");
   await expect(page.locator(".task-button")).toHaveCount(0);
   await page.goto("/projects/");
-  await expect(page.locator(".task-button")).toHaveText("Projects");
+  await expect(
+    page.getByRole("region", { name: "Taskbar" }).locator(".task-button:visible"),
+  ).toHaveText("Projects");
 });
 
 test("without JavaScript every route shows its content and the Start menu links work", async ({
@@ -366,15 +368,24 @@ test("with a coarse pointer a single tap opens the section", async ({ browser })
   await context.close();
 });
 
-test("the browser window fills the desktop height above the taskbar", async ({ page }) => {
+test("the browser window is a normal window that uses the desktop height above the taskbar", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/projects/");
-  const gap = await page.evaluate(() => {
+  const measures = await page.evaluate(() => {
     const window_ = document.querySelector("#browser")?.getBoundingClientRect();
     const footer = document.querySelector("footer")?.getBoundingClientRect();
-    return Math.round((footer?.top ?? 0) - (window_?.bottom ?? 0));
+    return {
+      gap: Math.round((footer?.top ?? 0) - (window_?.bottom ?? 0)),
+      height: window_?.height ?? 0,
+      widthShare: (window_?.width ?? 0) / window.innerWidth,
+    };
   });
-  expect(gap).toBeLessThanOrEqual(20);
+  expect(measures.gap).toBeLessThanOrEqual(48);
+  expect(measures.height).toBeGreaterThan(500);
+  expect(measures.widthShare).toBeGreaterThan(0.6);
+  expect(measures.widthShare).toBeLessThan(0.9);
 });
 
 test("at phone width the address field keeps the full address and fits the window", async ({
@@ -556,4 +567,15 @@ test("at 320px a long browser title stays on one line and is cut with an ellipsi
     inner: window.innerWidth,
   }));
   expect(widths.scroll).toBeLessThanOrEqual(widths.inner);
+});
+
+test("the address field is drawn as a sunken white field with black text", async ({ page }) => {
+  await page.goto("/projects/");
+
+  const address = page.locator("#browser-address");
+
+  await expect(address).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(address).toHaveCSS("color", "rgb(0, 0, 0)");
+  const shadow = await address.evaluate((el) => getComputedStyle(el).boxShadow);
+  expect(shadow).not.toBe("none");
 });

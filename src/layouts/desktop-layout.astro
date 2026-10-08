@@ -75,8 +75,21 @@ const address = section === undefined ? "" : buildAddress(Astro.site, section.pa
   body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* On a short screen (200% zoom, a phone on its side) there is no room for a window with its own
+     scrolling, so the window is as tall as its content and the page scrolls instead. */
+  @media (max-height: 30rem) {
+    body {
+      height: auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+  }
+  /* The footer and taskbar keep their size; the desktop between them takes what is left. */
+  body > footer {
+    flex: none;
   }
   .skip-link {
     position: absolute;
