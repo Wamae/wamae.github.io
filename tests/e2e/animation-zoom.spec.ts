@@ -4,6 +4,7 @@ import {
   h1,
   icons,
   taskbar,
+  status,
   browserWindow,
   startButton,
   record,
@@ -123,5 +124,67 @@ test.describe("zoom outlines", () => {
     await expect.poll(async () => (await outlines(page)).length).toBe(2);
     await expect(page.locator(".zoom-outline")).toHaveCount(0);
     await expect(html(page)).not.toHaveAttribute("data-animating", "zoom");
+  });
+});
+
+test("a window opened by Forward zooms from its taskbar button, not from an earlier click", async ({
+  page,
+}) => {
+  await record(page);
+  await page.goto("/");
+  await icons(page).getByRole("link", { name: "About Me" }).dblclick();
+  await expect(h1(page)).toHaveText("About Me");
+  await outlineEnded(page, 1);
+  await page.goBack();
+  await expect(h1(page)).toHaveText("E2E Test Owner");
+  await outlineEnded(page, 2);
+  // Clicks that open nothing, such as the Screen Saver item, must not leave an origin behind.
+  await startButton(page).click();
+  await page.getByRole("button", { name: "Screen Saver" }).click();
+  await expect(page.locator("canvas.screensaver")).toBeVisible();
+  await page.keyboard.press("a");
+  await expect(page.locator("canvas.screensaver")).toHaveCount(0);
+  await icons(page).getByRole("link", { name: "About Me" }).click();
+  await page.goForward();
+  await expect(h1(page)).toHaveText("About Me");
+  await outlineEnded(page, 3);
+  const task = taskbar(page).getByRole("button", { name: "About Me" });
+  expectNear((await outlines(page))[2]?.from, await boxOf(task));
+});
+
+test.describe("when the browser cannot animate", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      Element.prototype.animate = () => {
+        throw new DOMException("not supported", "NotSupportedError");
+      };
+    });
+  });
+
+  test("open, maximize, minimize and close still work, without a page reload", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      (window as unknown as { marker: string }).marker = "same-document";
+    });
+    await icons(page).getByRole("link", { name: "Projects" }).dblclick();
+    await expect(h1(page)).toHaveText("Projects");
+    await expect(page.locator("#main")).toBeFocused();
+
+    await page.getByRole("button", { name: "Maximize" }).click();
+    await expect(status(page)).toHaveText("Projects maximized");
+    await expect(page.getByRole("button", { name: "Restore" })).toBeFocused();
+
+    await page.getByRole("button", { name: "Minimize" }).click();
+    await expect(status(page)).toHaveText("Projects minimized");
+    await taskbar(page).getByRole("button", { name: "Projects" }).click();
+    await expect(status(page)).toHaveText("Projects restored");
+
+    await page.getByRole("button", { name: "Close" }).click();
+    await expect(h1(page)).toHaveText("E2E Test Owner");
+    await expect(page.locator(".zoom-outline")).toHaveCount(0);
+    await expect(html(page)).not.toHaveAttribute("data-animating", "zoom");
+    expect(await page.evaluate(() => (window as unknown as { marker?: string }).marker)).toBe(
+      "same-document",
+    );
   });
 });
