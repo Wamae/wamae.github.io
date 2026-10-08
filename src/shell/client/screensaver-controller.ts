@@ -176,6 +176,9 @@ export function bindScreenSaver(doc: Document, win: Window, options: ScreenSaver
       dispatch({ type: "activity", at: now() });
       return;
     }
+    // Focus and scroll events can come from the page itself while the saver shows, and they are not
+    // something the visitor did, so only keys, the pointer, touch and the wheel stop it.
+    if (event.type === "focusin" || event.type === "scroll") return;
     if (event.type === "pointermove") {
       const moved = Math.hypot(pointer.x - anchor.x, pointer.y - anchor.y);
       if (moved < moveThreshold) return;
@@ -184,7 +187,7 @@ export function bindScreenSaver(doc: Document, win: Window, options: ScreenSaver
     event.preventDefault();
     event.stopImmediatePropagation();
     if (event.type === "keydown") swallow(keyTypes);
-    else if (event.type !== "pointermove" && event.type !== "scroll") swallow(pressTypes);
+    else if (event.type !== "pointermove") swallow(pressTypes);
     dispatch({ type: "activity", at: now() });
   };
 
