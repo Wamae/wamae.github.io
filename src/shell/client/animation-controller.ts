@@ -39,7 +39,10 @@ export function bindAnimationPreference(
     for (const button of doc.querySelectorAll<HTMLButtonElement>("[data-animations-toggle]")) {
       button.setAttribute("aria-pressed", String(view.pressed));
       button.setAttribute("aria-label", view.label);
+      const hadFocus = doc.activeElement === button;
       button.disabled = view.disabled;
+      // A button that is switched off cannot keep focus, so it goes to its neighbour, not to nowhere.
+      if (hadFocus && view.disabled) doc.getElementById("start-button")?.focus();
       const state = button.querySelector(".state");
       if (state !== null) state.textContent = view.pressed ? "On" : "Off";
     }
