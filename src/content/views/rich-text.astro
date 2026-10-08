@@ -1,0 +1,14 @@
+---
+import type { RichText } from "..";
+
+// Text with bold figures. Each part is an Astro expression, so it is escaped as text and nothing
+// in the data can become markup. A bold part is a real <strong>, which inherits the text colour.
+interface Props {
+  text: RichText;
+}
+const { text } = Astro.props;
+---
+
+{text.segments.map((segment) =>
+  segment.kind === "strong" ? <strong>{segment.text}</strong> : segment.text,
+)}

@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 import { industries } from "./industries";
 import { findCurrency } from "./currency-rule";
 import { getProfile } from "./profile";
-import profileData from "./profile.json";
 
-describe("the real profile data file", () => {
+describe("the real CV file (content/cv.yml)", () => {
   const profile = getProfile();
 
   it("passes validation", () => {
@@ -73,8 +72,41 @@ describe("the real profile data file", () => {
     ]);
   });
 
+  it("bolds exactly the impact figures the CV emphasises, and nothing else", () => {
+    const texts = [
+      ...profile.summary,
+      ...profile.roles.flatMap((role) => [role.description, ...role.highlights]),
+      ...profile.projects.flatMap((project) => [project.description, project.results]),
+    ];
+    const bold = texts
+      .flatMap((text) => text?.segments ?? [])
+      .filter((segment) => segment.kind === "strong")
+      .map((segment) => segment.text);
+    expect([...bold].sort()).toEqual(
+      [
+        "3X",
+        "80%",
+        "66%",
+        "3 months",
+        "3-4 weeks",
+        "1000+",
+        "100K",
+        "10 million",
+        "25%",
+        "90%",
+        "5",
+        "100",
+      ].sort(),
+    );
+  });
+
+  it("leaves no asterisk in any plain text", () => {
+    expect(JSON.stringify(profile.roles.map((role) => role.description?.plain))).not.toContain("*");
+    expect(profile.projects.some((project) => project.description.plain.includes("*"))).toBe(false);
+  });
+
   it("holds no currency anywhere in the file text", () => {
-    expect(findCurrency(JSON.stringify(profileData))).toBeUndefined();
+    expect(findCurrency(JSON.stringify(profile))).toBeUndefined();
   });
 
   it("uses only https links", () => {

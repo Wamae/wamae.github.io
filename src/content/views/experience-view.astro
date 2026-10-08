@@ -1,6 +1,7 @@
 ---
 import type { Profile } from "..";
 import PeriodText from "./period-text.astro";
+import RichText from "./rich-text.astro";
 
 // Work experience: the roles newest first, each with the projects done in that role.
 interface Props {
@@ -20,11 +21,17 @@ const { profile } = Astro.props;
           <p class="period">
             <PeriodText period={role.period} />
           </p>
-          {role.description !== undefined && <p>{role.description}</p>}
+          {role.description !== undefined && (
+            <p>
+              <RichText text={role.description} />
+            </p>
+          )}
           {role.highlights.length > 0 && (
             <ul>
               {role.highlights.map((highlight) => (
-                <li>{highlight}</li>
+                <li>
+                  <RichText text={highlight} />
+                </li>
               ))}
             </ul>
           )}
@@ -36,8 +43,13 @@ const { profile } = Astro.props;
                   <li>
                     <a href={`/projects/#project-${project.id}`}>{project.title}</a>
                     <br />
-                    {project.description}
-                    {project.results !== undefined && ` ${project.results}`}
+                    <RichText text={project.description} />
+                    {project.results !== undefined && (
+                      <>
+                        {" "}
+                        <RichText text={project.results} />
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>

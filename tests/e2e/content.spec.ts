@@ -169,3 +169,41 @@ test("a By industry link works without JavaScript and lands on the industry", as
   await expect(page.locator("#industry-staffing")).toBeInViewport();
   await context.close();
 });
+
+for (const path of ["/about/", "/experience/", "/projects/"]) {
+  test(`bold figures on ${path} are bold and keep the text colour`, async ({ page }) => {
+    await page.goto(path);
+    const figures = page.getByRole("main").locator("strong");
+    expect(await figures.count()).toBeGreaterThan(0);
+    for (const figure of await figures.all()) {
+      const style = await figure.evaluate((element) => {
+        const own = getComputedStyle(element);
+        const parent = getComputedStyle(element.parentElement as Element);
+        return {
+          weight: Number(own.fontWeight),
+          colour: own.color,
+          parentColour: parent.color,
+          parentWeight: Number(parent.fontWeight),
+          family: own.fontFamily,
+        };
+      });
+      expect(style.weight).toBeGreaterThanOrEqual(700);
+      expect(style.parentWeight).toBeLessThan(700);
+      expect(style.colour).toBe(style.parentColour);
+      expect(style.colour).toBe("rgb(0, 0, 0)");
+      expect(style.family).toContain("Pixelify Sans");
+    }
+  });
+}
+
+test("no asterisk is visible anywhere on the content pages", async ({ page }) => {
+  for (const path of ["/about/", "/experience/", "/projects/", "/contact/"]) {
+    await page.goto(path);
+    expect(await page.locator("body").innerText(), path).not.toContain("*");
+  }
+});
+
+test("a bold figure is read as normal text by assistive technology", async ({ page }) => {
+  await page.goto("/about/");
+  await expect(page.getByRole("main")).toContainText("which brought a 3X increase in outgoing");
+});

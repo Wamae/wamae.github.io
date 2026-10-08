@@ -1,5 +1,6 @@
 ---
 import type { Profile } from "..";
+import RichText from "./rich-text.astro";
 
 // About Me: the summary, key skills, education and certifications.
 interface Props {
@@ -10,7 +11,9 @@ const { profile } = Astro.props;
 
 <p class="headline">{profile.headline}</p>
 {profile.summary.map((paragraph) => (
-  <p>{paragraph}</p>
+  <p>
+    <RichText text={paragraph} />
+  </p>
 ))}
 
 <section aria-labelledby="skills-title">
@@ -27,7 +30,7 @@ const { profile } = Astro.props;
   <ul>
     {profile.education.map((entry) => (
       <li>
-        <strong>{entry.institution}</strong>
+        <span class="institution">{entry.institution}</span>
         <br />
         {entry.qualification}
       </li>
@@ -51,6 +54,9 @@ const { profile } = Astro.props;
 </section>
 
 <style>
+  .institution {
+    font-weight: 700;
+  }
   .headline {
     font-weight: 700;
     font-size: 1.25rem;

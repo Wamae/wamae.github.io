@@ -1,13 +1,20 @@
+import type { Segment } from "./emphasis";
 import type { Industry } from "./industries";
 import type { Period } from "./partial-date";
+
+/** Text that may hold bold figures: the parts to render, and the same text with no markers. */
+export interface RichText {
+  readonly segments: readonly Segment[];
+  readonly plain: string;
+}
 
 export interface Role {
   readonly id: string;
   readonly employer: string;
   readonly title: string;
   readonly period: Period;
-  readonly description?: string;
-  readonly highlights: readonly string[];
+  readonly description?: RichText;
+  readonly highlights: readonly RichText[];
 }
 
 export interface Project {
@@ -15,8 +22,8 @@ export interface Project {
   readonly roleId: string;
   readonly title: string;
   readonly industry: Industry;
-  readonly description: string;
-  readonly results?: string;
+  readonly description: RichText;
+  readonly results?: RichText;
   /** The project's own period, or the period of its role when the data gives none. */
   readonly period: Period;
   /** True when the data gives the project its own period, false when it is the role's period. */
@@ -42,7 +49,7 @@ export interface ProfileLink {
 /** The validated profile. Roles and projects are already sorted newest first. */
 export interface Profile {
   readonly headline: string;
-  readonly summary: readonly string[];
+  readonly summary: readonly RichText[];
   readonly keySkills: readonly string[];
   readonly roles: readonly Role[];
   readonly projects: readonly Project[];

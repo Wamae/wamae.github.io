@@ -24,6 +24,7 @@ afterAll(async () => {
 const mainOf = (path: string) => /<main[\s\S]*?<\/main>/.exec(pages[path] as string)?.[0] ?? "";
 const textOf = (html: string) =>
   html
+    .replace(/<\/?strong[^>]*>/g, "")
     .replace(/<style[\s\S]*?<\/style>/g, "")
     .replace(/<[^>]+>/g, " ")
     .replace(/&#39;/g, "'")
@@ -132,7 +133,7 @@ describe("/projects/", () => {
 describe("/about/", () => {
   it("shows the summary, every skill, the education and the certifications", () => {
     const text = textOf(mainOf("about"));
-    for (const paragraph of profile.summary) expect(text).toContain(paragraph);
+    for (const paragraph of profile.summary) expect(text).toContain(paragraph.plain);
     for (const skill of profile.keySkills) expect(text).toContain(skill);
     for (const entry of profile.education) expect(text).toContain(entry.qualification);
     for (const certification of profile.certifications) expect(text).toContain(certification.name);
@@ -141,12 +142,12 @@ describe("/about/", () => {
 
   it("is written in the first person, with no third-person sentence opening", () => {
     const thirdPerson = /(?:^|[.!?]\s+)(?:He|His|She|Her|Wamae|Benson|Integration Owner)\b/;
-    for (const paragraph of profile.summary) {
-      expect(paragraph, paragraph).not.toMatch(thirdPerson);
-      expect(paragraph, paragraph).not.toMatch(/\b(?:he|she) (?:has|is|was|had)\b/i);
+    for (const { plain } of profile.summary) {
+      expect(plain, plain).not.toMatch(thirdPerson);
+      expect(plain, plain).not.toMatch(/\b(?:he|she) (?:has|is|was|had)\b/i);
     }
     expect(textOf(mainOf("about"))).not.toMatch(thirdPerson);
-    expect(profile.summary.join(" ")).toMatch(/\bI (?:am|have)\b/);
+    expect(profile.summary.map((p) => p.plain).join(" ")).toMatch(/\bI (?:am|have)\b/);
   });
 });
 
@@ -156,6 +157,59 @@ describe("/contact/", () => {
     expect(html).toContain('href="mailto:integration@example.invalid"');
     const external = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]);
     expect(external).toEqual(profile.links.map((link) => link.url));
+  });
+});
+
+describe("bold figures", () => {
+  const strongTexts = (path: string) =>
+    [...mainOf(path).matchAll(/<strong[^>]*>([\s\S]*?)<\/strong>/g)].map((m) => m[1]);
+
+  it("bolds exactly the marked figures on About, Experience and Projects", () => {
+    expect(strongTexts("about")).toEqual(["3X"]);
+    expect(strongTexts("experience")).toEqual([
+      "80%",
+      "66%",
+      "3 months",
+      "3-4 weeks",
+      "1000+",
+      "100K",
+      "10 million",
+      "25%",
+      "90%",
+      "5",
+      "100",
+    ]);
+    expect(strongTexts("projects")).toEqual([
+      "80%",
+      "66%",
+      "3 months",
+      "3-4 weeks",
+      "1000+",
+      "100K",
+      "10 million",
+      "25%",
+      "90%",
+    ]);
+    expect(strongTexts("contact")).toEqual([]);
+  });
+
+  it("renders the bold figure inside its sentence as a real strong element", () => {
+    expect(mainOf("experience")).toContain("increase of <strong>80%</strong> in revenue");
+    expect(mainOf("about")).toContain("brought a <strong>3X</strong> increase");
+  });
+
+  it("never shows the marker characters, in any page", async () => {
+    for (const path of ["", ...contentPaths]) {
+      const html = path === "" ? site.html : (pages[path] as string);
+      expect(html, path).not.toContain("**");
+      expect(textOf(html), path).not.toContain("*");
+    }
+  });
+
+  it("uses strong only for the marked figures", () => {
+    for (const path of contentPaths) {
+      expect(mainOf(path).match(/<strong/g)?.length ?? 0, path).toBe(strongTexts(path).length);
+    }
   });
 });
 

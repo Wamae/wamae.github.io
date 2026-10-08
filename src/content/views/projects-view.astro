@@ -1,6 +1,7 @@
 ---
 import { groupProjectsByIndustry, industrySlug, type Profile } from "..";
 import PeriodText from "./period-text.astro";
+import RichText from "./rich-text.astro";
 
 // Projects: an index by industry with counts (only industries that have a project), then every project newest first.
 interface Props {
@@ -51,7 +52,7 @@ const roleOf = (roleId: string) => {
           <article aria-labelledby={`project-${project.id}-title`}>
             <h3 id={`project-${project.id}-title`}>{project.title}</h3>
             <p>
-              <strong>Industry:</strong> {project.industry}
+              <span class="label">Industry:</span> {project.industry}
             </p>
             {project.periodIsOwn ? (
               <p>
@@ -63,8 +64,14 @@ const roleOf = (roleId: string) => {
                 Role: {role.employer} ({role.title}, <PeriodText period={project.period} />)
               </p>
             )}
-            <p>{project.description}</p>
-            {project.results !== undefined && <p>{project.results}</p>}
+            <p>
+              <RichText text={project.description} />
+            </p>
+            {project.results !== undefined && (
+              <p>
+                <RichText text={project.results} />
+              </p>
+            )}
           </article>
         </li>
       );
@@ -87,6 +94,9 @@ const roleOf = (roleId: string) => {
     padding-left: var(--space-4);
     display: grid;
     gap: var(--space-1);
+  }
+  .label {
+    font-weight: 700;
   }
   .projects {
     list-style: none;

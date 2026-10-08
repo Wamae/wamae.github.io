@@ -3,4 +3,4 @@ export { groupProjectsByIndustry, type IndustryGroup } from "./group-projects-by
 export { industries, industrySlug, type Industry } from "./industries";
 export { formatPartialDate, toIsoDate } from "./partial-date";
 export type { Period, PartialDate } from "./partial-date";
-export type { Profile, ProfileLink, Project, Role } from "./profile-types";
+export type { Profile, ProfileLink, Project, RichText, Role } from "./profile-types";
