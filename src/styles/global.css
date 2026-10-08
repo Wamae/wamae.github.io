@@ -169,3 +169,11 @@ a {
     scrollbar-color: var(--color-window-frame) var(--color-window-face);
   }
 }
+
+/* The busy cursor: an hourglass drawn for this site, while a page is loading. */
+html[data-busy="true"],
+html[data-busy="true"] * {
+  cursor:
+    url("/cursors/hourglass.svg") 16 16,
+    wait !important;
+}
