@@ -1,9 +1,10 @@
 import { bindAnimationPreference } from "./animation-controller";
 import { createBusyIndicator } from "./busy-controller";
+import { bindCascade } from "./cascade-controller";
 import { bindScreenSaver } from "./screensaver-controller";
 import { startClock } from "./clock-controller";
 import { bindDesktopIcons } from "./desktop-icon-controller";
-import { bindSectionNavigation } from "./section-navigation";
+import { bindSectionNavigation, combineObservers } from "./section-navigation";
 import { bindStartMenu } from "./start-menu-controller";
 import { createWindowControls } from "./window-controller";
 import { createZoomAnimator } from "./zoom-animator";
@@ -35,7 +36,8 @@ const windowControls = createWindowControls(
   createZoomAnimator(document, animations.isEnabled),
 );
 const busy = createBusyIndicator(document, window, animations.isEnabled);
-windowControls.bind(bindSectionNavigation(document, window, windowControls, busy));
+const observers = combineObservers(windowControls, bindCascade(document, animations));
+windowControls.bind(bindSectionNavigation(document, window, observers, busy));
 bindScreenSaver(document, window, { animations });
 startClock(document, window);
 

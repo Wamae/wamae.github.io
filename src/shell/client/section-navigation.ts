@@ -59,6 +59,15 @@ export interface NavigationObserver {
   navigated(path: string, swapped: boolean): void;
 }
 
+/** One observer that tells several. */
+export function combineObservers(...observers: NavigationObserver[]): NavigationObserver {
+  return {
+    navigating: (path) => observers.forEach((observer) => observer.navigating(path)),
+    navigated: (path, swapped) =>
+      observers.forEach((observer) => observer.navigated(path, swapped)),
+  };
+}
+
 /** What other controllers may ask of the navigation. */
 export interface SectionNavigation {
   /** Opens a page of the site as a new history entry. Resolves true once it is on screen. */
