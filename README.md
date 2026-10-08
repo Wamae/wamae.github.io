@@ -71,6 +71,19 @@ After the desktop appears, each section (About Me, Work Experience, Projects, Co
 - Without JavaScript there is no Minimize or Maximize button, Close is a plain link to the desktop, and the window keeps its default size with its content scrolling inside. The script shows its buttons only after it has set up everything, so a failure leaves the plain link and nothing dead. The state is not saved: after a reload the window is open, at normal size, showing the section in the address.
 - The site is served from the root of its origin, so `site` in `astro.config.mjs` must not have a base path.
 
+### Animations
+
+All animations are decorative extras. Nothing waits for them, none takes focus, and the site works the same with them off. They are written in plain CSS and TypeScript with the browser's own Web Animations API and Canvas 2D, with no library.
+
+- **Zoom outlines.** Opening a window from a desktop folder or a Start menu item, closing it, minimizing it to its taskbar button, restoring it and maximizing or restoring it draw a dotted rectangle that jumps in eight steps (about a quarter of a second) between where the window was and where it goes, as Windows NT 3.1 did. It is drawn over the page and is hidden from assistive technology.
+- **Program Manager cascade.** The group windows of Program Manager appear one after another in a few steps.
+- **Hourglass.** An hourglass cursor, drawn for this site, shows while a page loads. With animations on, a fast load still keeps it for a short moment (300 ms) so it can be seen. The page is shown at once and is never held back.
+- **Screen saver.** A Mystify-style saver (two bouncing shapes with trails) starts after 90 seconds without a key, mouse, touch or scroll, or from Start, Screen Saver. Any key, mouse move, click, touch or wheel stops it, and that first action is not passed on to the page. A saver that you start yourself is announced to screen readers, one that starts by itself is not and never moves focus.
+- **Animations button.** The taskbar tray has an Animations button, shown only with JavaScript, that turns all of this off or on. The choice is kept in this browser (local storage). When your device asks for reduced motion, the button is switched off and says so ("Animations off: your device asks for reduced motion"), animations stay off, the Screen Saver item is not offered, and the saver never starts by itself. Without JavaScript nothing animates and none of these controls appear.
+- On the page, `data-animations` (on or off), `data-animating` (while an outline is drawn), `data-busy`, and `data-screensaver` show the state, which the tests use.
+
+To try it by hand, run the site (see Run on localhost), open a folder, minimize, restore and maximize the window, open Program Manager from the Start menu, leave the page alone for 90 seconds or choose Start, Screen Saver, and flip the Animations button. The manual test script (a local document) lists each animation for Chrome, Firefox and Safari.
+
 ## Editing the content
 
 All CV content is in one commented YAML file, **`content/cv.yml`**: the headline, summary (first person), key skills, roles, projects, education, certifications and links. It is public content and is published with the site. The comments at the top of the file explain every section, the date formats, the industry list and the rules below. The owner name and email still come from `.env`.
