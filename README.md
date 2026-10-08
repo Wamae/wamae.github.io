@@ -1,6 +1,8 @@
 # wamae.github.io
 
-Personal professional website of Benson Wamae, with a Windows NT 3.1 retro theme. Built with Astro and TypeScript as a fully static site and hosted on GitHub Pages at <https://wamae.github.io>.
+Personal professional website of Benson Wamae, with a Windows NT 3.1 retro theme. The theme reflects one of the first times I interacted with a computer; It was on an Intel Pentium I desktop. 
+
+The website is built with Astro and TypeScript as a fully static site and hosted on GitHub Pages at <https://wamae.github.io>.
 
 ## Setup
 
