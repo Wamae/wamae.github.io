@@ -53,3 +53,9 @@ describe("findCurrency", () => {
     expect(findCurrency(text)).toBeUndefined();
   });
 });
+
+describe("findCurrency with terms from the CV", () => {
+  it.each(["during COVID-19 and GDPR issues", "COVID-19", "GDPR"])("accepts %j", (text) => {
+    expect(findCurrency(text)).toBeUndefined();
+  });
+});
