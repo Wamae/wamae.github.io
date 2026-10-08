@@ -67,6 +67,10 @@
   --color-address-bg: var(--vga-white);
   --color-address-text: var(--vga-black);
 
+  /* Animations: the zoom outline is inverted against whatever is under it, so it shows on any
+     colour. The screen saver colours are read by the script by name. */
+  --color-zoom-outline: var(--vga-white);
+
   /* 3D bevels, drawn with box-shadow so no images are needed */
   --bevel-raised:
     inset -1px -1px 0 var(--color-bevel-dark-shadow), inset 1px 1px 0 var(--color-bevel-highlight),

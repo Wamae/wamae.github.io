@@ -1,5 +1,7 @@
 import { homePath } from "../section-model";
 import type { WindowEvent, WindowModel } from "../window-state";
+import type { Rect } from "../zoom-frames";
+import type { Animator } from "./zoom-animator";
 import type { NavigationObserver, SectionNavigation } from "./section-navigation";
 
 /** The pure rules, handed in so this controller only has to apply them to the page. */
@@ -24,11 +26,14 @@ const shortQuery = "(max-height: 30rem)";
  * Drives the title bar controls and the window's taskbar button. The state itself comes from the
  * pure machine. This part only reads the page, hides or shows the window, moves focus and speaks.
  * The state is never stored: a page that loads with a browser window starts open and normal size.
+ * Every change also asks the animator for a zoom outline between where the window was and where it
+ * goes. That is decorative: it is requested after the change has been made, and nothing waits on it.
  */
 export function createWindowControls(
   doc: Document,
   win: Window,
   machine: WindowMachine,
+  animator: Animator,
 ): WindowControls {
   let navigation: SectionNavigation | null = null;
   let model: WindowModel =
@@ -49,6 +54,26 @@ export function createWindowControls(
     browser()?.querySelector<HTMLButtonElement>('[data-window-action="maximize"]') ?? null;
   const titleOf = () => taskButton()?.textContent?.trim() ?? "";
   let title = titleOf();
+  /** The path of the section in the window, so a closing window can zoom to its folder. */
+  let sectionPath = doc.getElementById("browser") === null ? "" : win.location.pathname;
+  /** Where the click that opens a window came from, and where a closing window was. */
+  let origin: Rect | null = null;
+  let closingFrom: Rect | null = null;
+
+  /** The rectangle of an element, or null when there is none. Read before anything is changed. */
+  const rectOf = (element: Element | null): Rect | null => {
+    if (element === null || !animator.isEnabled()) return null;
+    const { x, y, width, height } = element.getBoundingClientRect();
+    return { x, y, width, height };
+  };
+  const play = (from: Rect | null, to: Rect | null) => {
+    if (from !== null && to !== null) void animator.zoom(from, to);
+  };
+  const startButton = () => doc.getElementById("start-button");
+  const folderFor = (path: string) =>
+    [...doc.querySelectorAll<HTMLAnchorElement>("[data-desktop-icon]")].find(
+      (icon) => new URL(icon.href).pathname === path,
+    ) ?? null;
 
   const say = (message: string | null) => {
     const status = doc.querySelector("[data-page-status]");
@@ -107,18 +132,26 @@ export function createWindowControls(
 
   /** Minimizes or restores, and puts focus where a person using it expects it. */
   const change = (event: WindowEvent) => {
+    const before = { window: rectOf(browser()), task: rectOf(taskButton()) };
     const from = apply(event, true);
     if (from.state === model.state) return;
-    if (model.state === "minimized") taskButton()?.focus();
-    else if (from.state === "minimized") showWindowAgain();
+    if (model.state === "minimized") {
+      taskButton()?.focus();
+      play(before.window, before.task);
+    } else if (from.state === "minimized") {
+      showWindowAgain();
+      play(before.task, rectOf(browser()));
+    }
   };
 
   /** Maximizes or puts the window back to its normal size. Focus stays where it was. */
   const toggleMaximize = (focusButton: boolean) => {
     // Until the script has finished binding, its controls are not on offer, and nor is this.
     if (!doc.documentElement.classList.contains("js") || !wide.matches) return;
+    const before = rectOf(browser());
     const from = apply({ type: "toggle-maximize" }, false);
     if (from.maximized === model.maximized) return;
+    play(before, rectOf(browser()));
     say(machine.maximizeAnnouncement(model.maximized, title));
     if (focusButton) maximizeButton()?.focus();
   };
@@ -132,12 +165,19 @@ export function createWindowControls(
     // A page that cannot be swapped in is loaded normally by the navigation itself.
     void navigation.open(homePath).then((shown) => {
       if (!shown) return;
-      const icon = [...doc.querySelectorAll<HTMLAnchorElement>("[data-desktop-icon]")].find(
-        (candidate) => new URL(candidate.href).pathname === section,
-      );
-      (icon ?? doc.getElementById("main"))?.focus();
+      (folderFor(section) ?? doc.getElementById("main"))?.focus();
     });
   };
+
+  // Remembers what was clicked to open a window, before the Start menu closes or the page changes.
+  doc.addEventListener(
+    "click",
+    (event) => {
+      const opener = (event.target as Element).closest("[data-desktop-icon], .start-item");
+      origin = rectOf(opener);
+    },
+    true,
+  );
 
   doc.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0) return;
@@ -166,12 +206,32 @@ export function createWindowControls(
     bind(next) {
       navigation = next;
     },
+    navigating(path) {
+      closingFrom = path === homePath && model.state === "open" ? rectOf(browser()) : null;
+    },
     navigated(path, swapped) {
       const target = path === homePath ? "desktop" : "section";
+      const opener = origin;
+      origin = null;
+      const closing = closingFrom;
+      closingFrom = null;
       const from = apply({ type: "navigate", target }, !swapped || target === "desktop");
-      if (target === "section") title = titleOf();
+      if (target === "section") {
+        title = titleOf();
+        sectionPath = path;
+      }
       // A different page already announced itself and holds focus.
       if (!swapped && from.state === "minimized") showWindowAgain();
+      if (animator.isEnabled()) {
+        if (target === "desktop") {
+          if (from.state === "open") play(closing, rectOf(folderFor(sectionPath) ?? startButton()));
+          sectionPath = "";
+        } else if (from.state !== "open") {
+          // A window opens from what was clicked, or restores from its taskbar button.
+          const fromTask = from.state === "minimized" || opener === null;
+          play(fromTask ? rectOf(taskButton()) : opener, rectOf(browser()));
+        }
+      }
     },
   };
 }

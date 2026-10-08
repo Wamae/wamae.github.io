@@ -177,3 +177,14 @@ html[data-busy="true"] * {
     url("/cursors/hourglass.svg") 16 16,
     wait !important;
 }
+
+/* The zoom outline: one dotted rectangle that is drawn inverted against what it crosses. */
+.zoom-outline {
+  position: fixed;
+  z-index: 40;
+  box-sizing: border-box;
+  contain: layout paint;
+  border: 1px dotted var(--color-zoom-outline);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}

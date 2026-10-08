@@ -5,6 +5,7 @@ import { bindDesktopIcons } from "./desktop-icon-controller";
 import { bindSectionNavigation } from "./section-navigation";
 import { bindStartMenu } from "./start-menu-controller";
 import { createWindowControls } from "./window-controller";
+import { createZoomAnimator } from "./zoom-animator";
 import { maximizeAnnouncement, nextWindow, noWindow, windowAnnouncement } from "../window-state";
 
 /** Local storage, or nothing when the browser blocks it. */
@@ -21,12 +22,17 @@ function localStore(win: Window): Storage | null {
 const animations = bindAnimationPreference(document, window, localStore(window));
 bindStartMenu(document);
 bindDesktopIcons(document);
-const windowControls = createWindowControls(document, window, {
-  initial: noWindow,
-  next: nextWindow,
-  announcement: windowAnnouncement,
-  maximizeAnnouncement,
-});
+const windowControls = createWindowControls(
+  document,
+  window,
+  {
+    initial: noWindow,
+    next: nextWindow,
+    announcement: windowAnnouncement,
+    maximizeAnnouncement,
+  },
+  createZoomAnimator(document, animations.isEnabled),
+);
 const busy = createBusyIndicator(document, window, animations.isEnabled);
 windowControls.bind(bindSectionNavigation(document, window, windowControls, busy));
 startClock(document, window);

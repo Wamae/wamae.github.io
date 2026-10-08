@@ -53,6 +53,8 @@ async function adoptStyles(doc: Document, next: Document): Promise<void> {
 
 /** Told about every page that comes into view, so other controllers can follow along. */
 export interface NavigationObserver {
+  /** A page is about to be fetched, and the page on screen has not changed yet. */
+  navigating(path: string): void;
   /** `swapped` is false when the page on screen was already the one chosen. */
   navigated(path: string, swapped: boolean): void;
 }
@@ -131,6 +133,7 @@ export function bindSectionNavigation(
 
   const loadPage = async (path: string): Promise<Outcome> => {
     cancelPending();
+    observer.navigating(path);
     const request = latestRequest;
     const abort = new AbortController();
     pendingRequest = abort;
