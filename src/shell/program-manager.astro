@@ -50,10 +50,12 @@ import { programGroups } from "./section-model";
   }
   /*
    * The cascade: each group window appears a little after the one before, in a few discrete steps
-   * (opacity and a small shift only, so nothing moves the layout). Off when animations are off, and
-   * the global reduced motion rule in global.css switches it off for devices that ask for it.
+   * (opacity and a small shift only, so nothing moves the layout). The script marks the groups with
+   * data-cascade when this page is opened into the browser window with animations on, and takes the
+   * mark off when each has finished. A page that is loaded directly is not marked, so it never
+   * flashes before the script runs. The global reduced motion rule in global.css switches it off.
    */
-  :global(html[data-animations="on"]) .group {
+  .group[data-cascade] {
     animation: group-appear 150ms steps(3, end) both;
     animation-delay: calc(var(--i) * 90ms);
   }
