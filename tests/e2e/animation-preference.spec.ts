@@ -46,6 +46,8 @@ test.describe("the Animations button and reduced motion", () => {
     await expect(html(page)).toHaveAttribute("data-animations", "on");
     await expect(status(page)).toHaveText("Animations on");
     expect(await page.evaluate(() => localStorage.getItem("desktop-animations"))).toBe("on");
+    await page.getByRole("button", { name: "Minimize" }).click();
+    await expect.poll(async () => (await outlines(page)).length).toBe(1);
   });
 
   test("ignores a saved value that it did not write", async ({ page }) => {
