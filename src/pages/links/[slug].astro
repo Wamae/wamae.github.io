@@ -1,0 +1,46 @@
+---
+import BlockedPage from "../../components/blocked-page.astro";
+import ExternalFrame from "../../components/external-frame.astro";
+import { getProfile } from "../../content";
+import { buildLinkRoutes, type LinkRoute } from "../../content/link-routes";
+import DesktopLayout from "../../layouts/desktop-layout.astro";
+import { canEmbed } from "../../shell/link-kind";
+
+// One page for every external link in content/cv.yml. The window shows the link's real address, and
+// either the page in a frame or a notice for a site that refuses to be framed. The set of pages is
+// built from the content file, so the window can never be pointed at an address that is not in it.
+export function getStaticPaths() {
+  return buildLinkRoutes(getProfile()).map((route) => ({
+    params: { slug: route.slug },
+    props: { route },
+  }));
+}
+
+interface Props {
+  route: LinkRoute;
+}
+const { route } = Astro.props;
+const page = { title: route.label, path: route.path, icon: "file-text" } as const;
+---
+
+<DesktopLayout section={page} address={route.url}>
+  <article class="link-page">
+    <h1>{route.label}</h1>
+    {canEmbed(route.url, route.embed) ? (
+      <ExternalFrame url={route.url} label={route.label} />
+    ) : (
+      <BlockedPage url={route.url} label={route.label} />
+    )}
+  </article>
+</DesktopLayout>
+
+<style>
+  .link-page {
+    display: grid;
+    gap: var(--space-3);
+  }
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+</style>
