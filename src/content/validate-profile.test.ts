@@ -201,6 +201,27 @@ describe("validateProfile", () => {
     );
   });
 
+  it("keeps an embed flag on a link and a certificate, and leaves it out when not given", () => {
+    const raw: Raw = validRaw();
+    raw["links"][0].embed = false;
+    raw["certifications"][0].embed = true;
+
+    const profile = validateProfile(raw);
+
+    expect(profile.links[0]?.embed).toBe(false);
+    expect(profile.certifications[0]?.embed).toBe(true);
+    expect(profile.certifications[1]).not.toHaveProperty("embed");
+  });
+
+  it("rejects an embed flag that is not true or false", () => {
+    expect(problemsFor((raw) => (raw["links"][0].embed = "no"))).toContain(
+      "links[0].embed: must be true or false",
+    );
+    expect(problemsFor((raw) => (raw["certifications"][0].embed = 0))).toContain(
+      "certifications[0].embed: must be true or false",
+    );
+  });
+
   it.each([
     ["$", "Raised $5 for the team"],
     ["USD", "Saved 2000 USD"],

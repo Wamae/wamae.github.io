@@ -158,6 +158,18 @@ export function readHttpsUrl(
   return undefined;
 }
 
+/** Reads an optional yes/no field. A missing field is fine (undefined); anything else must be true or false. */
+export function readOptionalBoolean(
+  value: unknown,
+  path: string,
+  reporter: ProblemReporter,
+): boolean | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value === "boolean") return value;
+  reporter.report(path, "must be true or false");
+  return undefined;
+}
+
 /** Reads a list of records, reporting an error when the value is not a list. */
 export function readRecords(
   value: unknown,
