@@ -7,6 +7,8 @@ import StatusBar from "../components/status-bar.astro";
 import Taskbar from "../components/taskbar.astro";
 import fontRegularUrl from "../assets/fonts/pixelify-sans-latin-400-normal.woff2?url";
 import { getSiteConfig } from "../config";
+import { getProfile } from "../content";
+import { buildLinkRoutes, linkRoutePaths } from "../content/link-routes";
 import { buildAddress } from "../shell/address-url";
 import Desktop from "../shell/desktop.astro";
 import type { IconName } from "../components/icon-names";
@@ -27,6 +29,8 @@ interface Props {
 }
 const { section, address: shownAddress } = Astro.props;
 const { ownerName } = getSiteConfig();
+// The script learns which pages are external links from the page, not from the content file.
+const linkRoutes = linkRoutePaths(buildLinkRoutes(getProfile())).join(" ");
 if (Astro.site === undefined) throw new Error("Set `site` in astro.config.mjs to build addresses.");
 const title = section === undefined ? ownerName : `${section.title} - ${ownerName}`;
 const address =
@@ -34,7 +38,7 @@ const address =
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-link-routes={linkRoutes}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
