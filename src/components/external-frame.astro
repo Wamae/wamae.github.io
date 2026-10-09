@@ -4,7 +4,8 @@ import Panel from "./panel.astro";
 
 // An external page shown inside the browser window, in a frame. Many sites refuse to be framed,
 // and a page cannot tell whether a frame was refused, so a notice above the frame says what to do
-// if it stays blank. The button is the only way out of the site, and the visitor chooses it.
+// if it stays blank. Nothing opens outside the window unless the visitor presses the button.
+// The frame fills what is left of the window's content area.
 interface Props {
   url: string;
   label: string;
@@ -14,7 +15,16 @@ const { url, label } = Astro.props;
 
 <div class="external-frame">
   <Panel variant="sunken" class="notice">
-    <p>If the page below stays blank, that site does not allow other sites to show it here.</p>
+    <div class="words">
+      <p>
+        If the page below stays blank or shows an error, that site does not allow other sites to
+        show it here.
+      </p>
+      <p>
+        The address bar shows the page that was opened here. If you follow links inside the frame it
+        does not change. To sign in, or to see the real address, open the page in a new tab.
+      </p>
+    </div>
     <Button href={url} newTab>
       Open in a new tab<span class="visually-hidden"> ({label}, leaves this site)</span>
     </Button>
@@ -24,6 +34,7 @@ const { url, label } = Astro.props;
     title={`${label} (a page on another site)`}
     src={url}
     sandbox="allow-scripts allow-same-origin allow-forms"
+    allow=""
     referrerpolicy="no-referrer"
     loading="lazy"
   ></iframe>
@@ -31,8 +42,16 @@ const { url, label } = Astro.props;
 
 <style>
   .external-frame {
-    display: grid;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
     gap: var(--space-2);
+  }
+  .words {
+    display: grid;
+    flex: 1 1 18rem;
+    gap: var(--space-1);
+    font-size: 0.875rem;
   }
   .external-frame :global(.notice) {
     display: flex;
@@ -43,8 +62,9 @@ const { url, label } = Astro.props;
   }
   .frame {
     display: block;
+    flex: 1 1 auto;
     width: 100%;
-    height: clamp(20rem, 70dvh, 60rem);
+    min-height: 18rem;
     border: 0;
     background: var(--color-client-bg);
     box-shadow: var(--bevel-sunken);
