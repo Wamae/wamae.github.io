@@ -11,7 +11,8 @@ import {
 import { fragmentId } from "../fragment-id";
 import { readSavedLength, saveLength } from "../history-length-storage";
 import { resolveInternalRoute } from "../internal-route";
-import { routePaths } from "../section-model";
+import { linkRoutesAttribute, parseLinkRoutes } from "../link-routes-attribute";
+import { routePaths as sectionRoutePaths } from "../section-model";
 import { noBusyIndicator, type BusyIndicator } from "./busy-controller";
 
 /** The parts of the page that change when another section opens. */
@@ -85,6 +86,12 @@ export function bindSectionNavigation(
   observer: NavigationObserver,
   busy: BusyIndicator = noBusyIndicator,
 ): SectionNavigation {
+  // The pages of external links are listed on the page (written at build time), and they open in the
+  // window exactly as the sections do.
+  const routePaths = [
+    ...sectionRoutePaths,
+    ...parseLinkRoutes(doc.documentElement.getAttribute(linkRoutesAttribute)),
+  ];
   let currentPath = resolveInternalRoute(win.location.href, win.location.href, routePaths);
   if (currentPath === null) {
     // An address that is not a known route, such as /projects/index.html: nothing to swap into,

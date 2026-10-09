@@ -184,7 +184,7 @@ export function createWindowControls(
     "click",
     (event) => {
       const opener = (event.target as Element).closest(
-        "[data-desktop-icon], .start-item:not([data-screensaver-start])",
+        "[data-desktop-icon], .start-item:not([data-screensaver-start]), #main a",
       );
       origin = rectOf(opener);
     },
