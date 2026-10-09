@@ -1,12 +1,16 @@
 ---
 import type { Profile } from "..";
+import type { LinkRoute } from "../link-routes";
 import RichText from "./rich-text.astro";
 
-// About Me: the summary, key skills, education and certifications.
+// About Me: the summary, key skills, education and certifications. A certification with a public
+// link goes to its own page, which shows it inside the browser window instead of leaving the site.
 interface Props {
   profile: Profile;
+  routes: readonly LinkRoute[];
 }
-const { profile } = Astro.props;
+const { profile, routes } = Astro.props;
+const pageOf = (url: string) => routes.find((route) => route.url === url)?.path;
 ---
 
 <p class="headline">{profile.headline}</p>
@@ -43,10 +47,10 @@ const { profile } = Astro.props;
   <ul>
     {profile.certifications.map((certification) => (
       <li>
-        {certification.url === undefined ? (
+        {certification.url === undefined || pageOf(certification.url) === undefined ? (
           certification.name
         ) : (
-          <a href={certification.url}>{certification.name}</a>
+          <a href={pageOf(certification.url)}>{certification.name}</a>
         )}
       </li>
     ))}

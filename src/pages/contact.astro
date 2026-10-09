@@ -4,16 +4,18 @@ import SectionContent from "../shell/section-content.astro";
 import { contentSections } from "../shell/section-model";
 import ContactView from "../content/views/contact-view.astro";
 import { getProfile } from "../content";
+import { buildLinkRoutes } from "../content/link-routes";
 import { getSiteConfig } from "../config";
 
 const section = contentSections.find((candidate) => candidate.id === "contact");
 if (section === undefined) throw new Error("Missing section: contact");
 const { ownerEmail } = getSiteConfig();
-const { links } = getProfile();
+const profile = getProfile();
+const { links } = profile;
 ---
 
 <DesktopLayout section={section}>
   <SectionContent section={section}>
-    <ContactView email={ownerEmail} links={links} />
+    <ContactView email={ownerEmail} links={links} routes={buildLinkRoutes(profile)} />
   </SectionContent>
 </DesktopLayout>

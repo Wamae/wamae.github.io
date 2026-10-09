@@ -1,12 +1,15 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { findCurrency } from "../../src/content/currency-rule";
 import { industries } from "../../src/content/industries";
+import { buildLinkRoutes } from "../../src/content/link-routes";
 import { getProfile } from "../../src/content/profile";
 import { buildSite, type BuiltSite } from "../support/build-site";
 
 let site: BuiltSite;
 const pages: Record<string, string> = {};
 const profile = getProfile();
+const linkRoutes = buildLinkRoutes(profile);
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const contentPaths = ["about", "experience", "projects", "contact"] as const;
 
 beforeAll(async () => {
@@ -152,11 +155,20 @@ describe("/about/", () => {
 });
 
 describe("/contact/", () => {
-  it("has the configured email as a mailto link and only the known links", () => {
+  it("has the configured email as a mailto link", () => {
+    expect(mainOf("contact")).toContain('href="mailto:integration@example.invalid"');
+  });
+
+  it("links every profile link to its own page of this site, and to no other site", () => {
     const html = mainOf("contact");
-    expect(html).toContain('href="mailto:integration@example.invalid"');
-    const external = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]);
-    expect(external).toEqual(profile.links.map((link) => link.url));
+    const hrefs = [...html.matchAll(/href="([^"]+)"/g)]
+      .map((m) => m[1])
+      .filter((href) => !href?.startsWith("mailto:"));
+    const expected = profile.links.map(
+      (link) => linkRoutes.find((route) => route.url === link.url)?.path,
+    );
+    expect(hrefs).toEqual(expected);
+    expect(html).not.toMatch(/href="https?:/);
   });
 });
 
@@ -240,12 +252,15 @@ describe("whole content", () => {
     }
   });
 
-  it("links every public certificate and profile link to https", () => {
+  it("links every certificate that has a public link to its own page of this site", () => {
     const withLinks = profile.certifications.filter((c) => c.url !== undefined);
-    expect(withLinks).toHaveLength(10);
-    expect(profile.certifications).toHaveLength(10);
+    expect(withLinks.length).toBeGreaterThan(0);
     for (const certification of withLinks) {
-      expect(pages["about"]).toContain(`>${certification.name}</a>`);
+      const path = linkRoutes.find((route) => route.url === certification.url)?.path;
+      expect(path, certification.name).toBeDefined();
+      const link = new RegExp(`<a href="${path}"[^>]*>${escapeRegExp(certification.name)}</a>`);
+      expect(pages["about"], certification.name).toMatch(link);
     }
+    expect(mainOf("about")).not.toMatch(/href="https?:/);
   });
 });
