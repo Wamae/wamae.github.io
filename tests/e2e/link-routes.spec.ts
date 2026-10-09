@@ -215,3 +215,83 @@ for (const [kind, target] of [
     });
   });
 }
+
+const profileLink = content.links[0];
+const certification = content.certifications.find((entry) => entry.url !== undefined);
+const routeFor = (url: string | undefined) => routes.find((entry) => entry.url === url);
+
+test.describe("the links on the Contact and About pages stay in the browser window", () => {
+  test.beforeEach(async ({ page }) => {
+    await stubExternalSites(page);
+  });
+
+  test("a profile link on Contact opens in the window, with its real address", async ({
+    page,
+    context,
+  }) => {
+    const route = routeFor(profileLink?.url);
+    test.skip(route === undefined || profileLink === undefined, "the content file has no links");
+    const opened: string[] = [];
+    context.on("page", (newPage) => opened.push(newPage.url()));
+    await page.goto("/contact/");
+    await markDocument(page);
+
+    await page.getByRole("link", { name: profileLink?.label ?? "" }).click();
+
+    await expect(h1(page)).toHaveText(route?.label ?? "");
+    await expect(page).toHaveURL(new RegExp(`${route?.path}$`));
+    await expect(addressBar(page)).toHaveValue(route?.url ?? "");
+    expect(await marker(page)).toBe("same-document");
+    expect(opened).toEqual([]);
+  });
+
+  test("a certificate link on About opens in the window, with its real address", async ({
+    page,
+    context,
+  }) => {
+    const route = routeFor(certification?.url);
+    test.skip(route === undefined || certification === undefined, "no certificate has a link");
+    const opened: string[] = [];
+    context.on("page", (newPage) => opened.push(newPage.url()));
+    await page.goto("/about/");
+    await markDocument(page);
+
+    await page.getByRole("link", { name: certification?.name ?? "", exact: true }).click();
+
+    await expect(h1(page)).toHaveText(route?.label ?? "");
+    await expect(addressBar(page)).toHaveValue(route?.url ?? "");
+    expect(await marker(page)).toBe("same-document");
+    expect(opened).toEqual([]);
+  });
+
+  test("no link on Contact or About leaves the site", async ({ page }) => {
+    for (const path of ["/contact/", "/about/"]) {
+      await page.goto(path);
+      const hrefs = await page
+        .locator("main a")
+        .evaluateAll((links) => links.map((link) => link.getAttribute("href") ?? ""));
+      expect(hrefs.length, path).toBeGreaterThan(0);
+      for (const href of hrefs) {
+        expect(/^https?:/i.test(href), `${path} ${href}`).toBe(false);
+      }
+    }
+  });
+
+  test("without JavaScript a profile link goes to its page in the same tab", async ({
+    browser,
+  }) => {
+    const route = routeFor(profileLink?.url);
+    test.skip(route === undefined || profileLink === undefined, "the content file has no links");
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await stubExternalSites(page);
+
+    await page.goto("http://127.0.0.1:4399/contact/");
+    await page.getByRole("link", { name: profileLink?.label ?? "" }).click();
+
+    await expect(page).toHaveURL(new RegExp(`${route?.path}$`));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(route?.label ?? "");
+    expect(context.pages()).toHaveLength(1);
+    await context.close();
+  });
+});
