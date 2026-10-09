@@ -1,16 +1,24 @@
 ---
-// A push button. With `href` it is a real link, otherwise a real button.
+// A push button. With `href` it is a real link, otherwise a real button. A link may ask to open in
+// a new tab; that is for the one place where the visitor chooses to leave the site.
 interface Props {
   href?: string;
   type?: "button" | "submit";
   id?: string;
   disabled?: boolean;
+  newTab?: boolean;
 }
-const { href, type = "button", id, disabled = false } = Astro.props;
+const { href, type = "button", id, disabled = false, newTab = false } = Astro.props;
 ---
 
 {href !== undefined ? (
-  <a class="button" href={href} id={id}>
+  <a
+    class="button"
+    href={href}
+    id={id}
+    target={newTab ? "_blank" : undefined}
+    rel={newTab ? "noopener noreferrer" : undefined}
+  >
     <slot />
   </a>
 ) : (

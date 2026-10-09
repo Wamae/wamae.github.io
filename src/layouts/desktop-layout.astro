@@ -9,18 +9,28 @@ import fontRegularUrl from "../assets/fonts/pixelify-sans-latin-400-normal.woff2
 import { getSiteConfig } from "../config";
 import { buildAddress } from "../shell/address-url";
 import Desktop from "../shell/desktop.astro";
-import { homePath, startMenuGroups, type Section } from "../shell/section-model";
+import type { IconName } from "../components/icon-names";
+import { homePath, startMenuGroups } from "../shell/section-model";
 
-// Every page is the same desktop. A section page also opens the browser window, with the
-// section's content in it. Without a section the desktop shows only what the page puts in the slot.
-interface Props {
-  section?: Section;
+// Every page is the same desktop. A page with a `section` (a title, the page's own path and an icon)
+// also opens the browser window, with the page's content in it. The window's address is the page's
+// own address unless `address` says otherwise, as it does for a page that shows another site.
+// Without a section the desktop shows only what the page puts in the slot.
+interface WindowPage {
+  readonly title: string;
+  readonly path: string;
+  readonly icon: IconName;
 }
-const { section } = Astro.props;
+interface Props {
+  section?: WindowPage;
+  address?: string;
+}
+const { section, address: shownAddress } = Astro.props;
 const { ownerName } = getSiteConfig();
 if (Astro.site === undefined) throw new Error("Set `site` in astro.config.mjs to build addresses.");
 const title = section === undefined ? ownerName : `${section.title} - ${ownerName}`;
-const address = section === undefined ? "" : buildAddress(Astro.site, section.path);
+const address =
+  section === undefined ? "" : (shownAddress ?? buildAddress(Astro.site, section.path));
 ---
 
 <!doctype html>
