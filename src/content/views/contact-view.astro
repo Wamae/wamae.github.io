@@ -1,12 +1,16 @@
 ---
 import type { ProfileLink } from "..";
+import type { LinkRoute } from "../link-routes";
 
-// Contact: the email from the site configuration, and the public profile links.
+// Contact: the email from the site configuration, and the public profile links. Each profile link
+// goes to its own page, which shows it inside the browser window instead of leaving the site.
 interface Props {
   email: string;
   links: readonly ProfileLink[];
+  routes: readonly LinkRoute[];
 }
-const { email, links } = Astro.props;
+const { email, links, routes } = Astro.props;
+const pageOf = (url: string) => routes.find((route) => route.url === url)?.path;
 ---
 
 <p>
@@ -18,7 +22,7 @@ const { email, links } = Astro.props;
   <ul>
     {links.map((link) => (
       <li>
-        <a href={link.url}>{link.label}</a>
+        {pageOf(link.url) === undefined ? link.label : <a href={pageOf(link.url)}>{link.label}</a>}
       </li>
     ))}
   </ul>
