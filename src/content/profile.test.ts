@@ -112,6 +112,28 @@ describe("the real CV file (content/cv.yml)", () => {
     expect(findCurrency(JSON.stringify(profile))).toBeUndefined();
   });
 
+  it("marks every site that refuses to be framed as not embeddable", () => {
+    const refusing = [
+      "github.com",
+      "www.linkedin.com",
+      "wamae.medium.com",
+      "twitter.com",
+      "www.kaggle.com",
+      "courses.edx.org",
+      "www.credly.com",
+      "www.youracclaim.com",
+      "www.datacamp.com",
+      "www.udemy.com",
+    ];
+    const entries = [...profile.links, ...profile.certifications].filter(
+      (entry): entry is typeof entry & { url: string } => entry.url !== undefined,
+    );
+    for (const entry of entries) {
+      const host = new URL(entry.url).host;
+      if (refusing.includes(host)) expect(entry.embed, host).toBe(false);
+    }
+  });
+
   it("uses only https links", () => {
     for (const link of profile.links) expect(link.url.startsWith("https://")).toBe(true);
   });

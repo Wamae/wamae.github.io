@@ -14,6 +14,7 @@ import {
   createProblemReporter,
   isRecord,
   readHttpsUrl,
+  readOptionalBoolean,
   readOptionalRichText,
   readRichText,
   readRichTextList,
@@ -162,15 +163,20 @@ function readCertifications(raw: unknown, reporter: ProblemReporter): Certificat
   const entries: Certification[] = [];
   readRecords(raw, "certifications", reporter).forEach((fields, index) => {
     const path = `certifications[${index}]`;
-    rejectUnknownFields(fields, ["name", "url"], path, reporter);
+    rejectUnknownFields(fields, ["name", "url", "embed"], path, reporter);
     const name = readText(fields["name"], `${path}.name`, reporter);
     const url =
       fields["url"] === undefined
         ? undefined
         : readHttpsUrl(fields["url"], `${path}.url`, reporter);
+    const embed = readOptionalBoolean(fields["embed"], `${path}.embed`, reporter);
     if (name === undefined) return;
     if (fields["url"] !== undefined && url === undefined) return;
-    entries.push({ name, ...(url === undefined ? {} : { url }) });
+    entries.push({
+      name,
+      ...(url === undefined ? {} : { url }),
+      ...(embed === undefined ? {} : { embed }),
+    });
   });
   return entries;
 }
@@ -178,10 +184,13 @@ function readCertifications(raw: unknown, reporter: ProblemReporter): Certificat
 function readLinks(raw: unknown, reporter: ProblemReporter): ProfileLink[] {
   const entries: ProfileLink[] = [];
   readRecords(raw, "links", reporter).forEach((fields, index) => {
-    rejectUnknownFields(fields, ["label", "url"], `links[${index}]`, reporter);
+    rejectUnknownFields(fields, ["label", "url", "embed"], `links[${index}]`, reporter);
     const label = readText(fields["label"], `links[${index}].label`, reporter);
     const url = readHttpsUrl(fields["url"], `links[${index}].url`, reporter);
-    if (label !== undefined && url !== undefined) entries.push({ label, url });
+    const embed = readOptionalBoolean(fields["embed"], `links[${index}].embed`, reporter);
+    if (label !== undefined && url !== undefined) {
+      entries.push({ label, url, ...(embed === undefined ? {} : { embed }) });
+    }
   });
   return entries;
 }

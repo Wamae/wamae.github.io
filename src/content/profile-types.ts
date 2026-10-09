@@ -39,11 +39,15 @@ export interface Certification {
   readonly name: string;
   /** A public link to the credential, only where it clearly matches this certification. */
   readonly url?: string;
+  /** false when the credential's site refuses to be shown in a frame inside the browser window. */
+  readonly embed?: boolean;
 }
 
 export interface ProfileLink {
   readonly label: string;
   readonly url: string;
+  /** false when the site refuses to be shown in a frame inside the browser window. */
+  readonly embed?: boolean;
 }
 
 /** The validated profile. Roles and projects are already sorted newest first. */

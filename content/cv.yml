@@ -43,6 +43,11 @@
 #     asterisks. A misplaced marker fails the build.
 #
 # LINKS (certification url and links below): https:// addresses only.
+#   - A link opens inside the site's own browser window, never in a new tab. Many sites
+#     forbid being shown inside another page. Add embed: false to a link or certification
+#     whose site does that (GitHub, LinkedIn, Medium and the others below): the window then
+#     says so and offers a button to open it in a new tab. Leave embed out to try to show
+#     the page in the window. It must be true or false.
 # Every id is lowercase words joined by hyphens and must be unique.
 # =============================================================================
 
@@ -295,34 +300,48 @@ education:
 certifications:
   - name: Professional Scrum Master certification
     url: https://www.credly.com/badges/560d6297-e2a0-440f-a014-b049ec6d872a
+    embed: false
   - name: IBM Banking and financial industry intro
     url: https://www.youracclaim.com/badges/31c6fc06-51e1-4cc0-bd65-8896b52d0156?source=linked_in_profile
+    embed: false
   - name: Google Android Developer certification
     url: https://www.credential.net/c17ce43c-14f4-4ae4-9ea2-ce0f524d6f21?key=e73fa2060d0bbaf05dcd43c693612ebabb8135370e18074797d794cf4e591ed8
   - name: Android Unit Testing and Test-Driven Development
     url: https://www.udemy.com/certificate/UC-5d359196-581c-461d-93f0-ab0cca513570/
+    embed: false
   - name: Introduction to Python for data science
     url: https://courses.edx.org/certificates/e53afc173d2e4cd0818fbace7b1c54fd
+    embed: false
   - name: Cleaning data in Python
     url: https://www.datacamp.com/statement-of-accomplishment/course/645685a7a24c350ce76fd2c0599b9f0c8a01cd9a
+    embed: false
   - name: Intermediate Python
     url: https://www.datacamp.com/statement-of-accomplishment/course/5aeeb528e4575cc7a279d92581e78905ac8bbd8b
+    embed: false
   - name: Introduction to importing data in Python
     url: https://www.datacamp.com/statement-of-accomplishment/course/ad88ebc8512e611bc2c1702517df68802f9be16c
+    embed: false
   - name: Python data science toolbox (part 1)
     url: https://www.datacamp.com/statement-of-accomplishment/course/f3b8670a6583b39a0a1e76a6018e1ecc0a71d75d
+    embed: false
   - name: Python data science toolbox (part 2)
     url: https://www.datacamp.com/statement-of-accomplishment/course/5c5a0105319d9e87ac9171d8ecb060791cf2b331
+    embed: false
 
 # ---- Links shown on the Contact page (https only) -------------------------
 links:
   - label: GitHub
     url: https://github.com/Wamae
+    embed: false
   - label: LinkedIn
     url: https://www.linkedin.com/in/wamae-benson/
+    embed: false
   - label: Medium
     url: https://wamae.medium.com/
+    embed: false
   - label: Twitter (X)
     url: https://twitter.com/wamae1
+    embed: false
   - label: Kaggle
     url: https://www.kaggle.com/bensonwamae
+    embed: false
