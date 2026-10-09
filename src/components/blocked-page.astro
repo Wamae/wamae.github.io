@@ -10,14 +10,15 @@ interface Props {
   label: string;
 }
 const { url, label } = Astro.props;
+const host = new URL(url).hostname;
 ---
 
 <div class="blocked">
   <Panel variant="raised" class="dialog">
     <h2>This page cannot be displayed in this window</h2>
     <p>
-      {label} does not allow other sites to show its pages inside a window. This is a rule of that
-      site, not a fault here.
+      The site that hosts this page, {host}, does not allow other sites to show its pages inside a
+      window. This is a rule of that site, not a fault here.
     </p>
     <p>Address:</p>
     <Panel variant="sunken" class="address-text">
