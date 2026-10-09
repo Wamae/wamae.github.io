@@ -1,0 +1,52 @@
+---
+import Button from "./button.astro";
+import Panel from "./panel.astro";
+
+// An external page shown inside the browser window, in a frame. Many sites refuse to be framed,
+// and a page cannot tell whether a frame was refused, so a notice above the frame says what to do
+// if it stays blank. The button is the only way out of the site, and the visitor chooses it.
+interface Props {
+  url: string;
+  label: string;
+}
+const { url, label } = Astro.props;
+---
+
+<div class="external-frame">
+  <Panel variant="sunken" class="notice">
+    <p>If the page below stays blank, that site does not allow other sites to show it here.</p>
+    <Button href={url} newTab>
+      Open in a new tab<span class="visually-hidden"> ({label}, leaves this site)</span>
+    </Button>
+  </Panel>
+  <iframe
+    class="frame"
+    title={`${label} (a page on another site)`}
+    src={url}
+    sandbox="allow-scripts allow-same-origin allow-forms"
+    referrerpolicy="no-referrer"
+    loading="lazy"
+  ></iframe>
+</div>
+
+<style>
+  .external-frame {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .external-frame :global(.notice) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .frame {
+    display: block;
+    width: 100%;
+    height: clamp(20rem, 70dvh, 60rem);
+    border: 0;
+    background: var(--color-client-bg);
+    box-shadow: var(--bevel-sunken);
+  }
+</style>
