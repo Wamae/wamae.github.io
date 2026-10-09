@@ -36,11 +36,26 @@ const page = { title: route.label, path: route.path, icon: "file-text" } as cons
 
 <style>
   .link-page {
-    display: grid;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
     gap: var(--space-3);
   }
   h1 {
     font-size: 1.75rem;
     line-height: 1.2;
+  }
+</style>
+
+<style is:global>
+  /* On a link page the window's content area is a column, so the frame can fill what is left. */
+  .client:has(> main > .link-page) {
+    display: flex;
+    flex-direction: column;
+  }
+  .client:has(> main > .link-page) > main {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
   }
 </style>
