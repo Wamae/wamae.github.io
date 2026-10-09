@@ -69,9 +69,13 @@ test("About Me shows the summary, skills, education and certifications", async (
     "Certifications",
   ]);
   await expect(main).toContainText("BSc Software Engineering (Cum Laude)");
-  await expect(
-    main.getByRole("link", { name: "Professional Scrum Master certification" }),
-  ).toHaveAttribute("href", /^https:\/\//);
+  // A certificate with a public link opens in the browser window, so it goes to a page of this site.
+  const certificateLinks = main.getByRole("region", { name: "Certifications" }).getByRole("link");
+  expect(await certificateLinks.count()).toBeGreaterThan(0);
+  const hrefs = await certificateLinks.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href") ?? ""),
+  );
+  for (const href of hrefs) expect(href).toMatch(/^\/links\/[a-z0-9]+(-[a-z0-9]+)*\/$/);
 });
 
 test("Contact shows the configured email and the public links", async ({ page }) => {
