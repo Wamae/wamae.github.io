@@ -1,16 +1,16 @@
 ---
 import type { Profile } from "..";
-import type { LinkRoute } from "../link-routes";
+import { linkTarget, type LinkRoute } from "../link-routes";
 import RichText from "./rich-text.astro";
 
 // About Me: the summary, key skills, education and certifications. A certification with a public
-// link goes to its own page, which shows it inside the browser window instead of leaving the site.
+// link opens in the browser window when its site can be shown there, and in a new tab when not.
 interface Props {
   profile: Profile;
   routes: readonly LinkRoute[];
 }
 const { profile, routes } = Astro.props;
-const pageOf = (url: string) => routes.find((route) => route.url === url)?.path;
+const targetOf = (url: string) => linkTarget(routes, url);
 ---
 
 <p class="headline">{profile.headline}</p>
@@ -47,10 +47,16 @@ const pageOf = (url: string) => routes.find((route) => route.url === url)?.path;
   <ul>
     {profile.certifications.map((certification) => (
       <li>
-        {certification.url === undefined || pageOf(certification.url) === undefined ? (
+        {certification.url === undefined || targetOf(certification.url) === undefined ? (
           certification.name
         ) : (
-          <a href={pageOf(certification.url)}>{certification.name}</a>
+          <a
+            href={targetOf(certification.url)?.href}
+            target={targetOf(certification.url)?.newTab ? "_blank" : undefined}
+            rel={targetOf(certification.url)?.newTab ? "noopener noreferrer" : undefined}
+          >
+            {certification.name}
+          </a>
         )}
       </li>
     ))}
