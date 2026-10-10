@@ -13,7 +13,10 @@ const env = {
 let site: BuiltSite;
 let fixture: CopyBuild;
 const pages = new Map<string, string>();
-const routes = buildLinkRoutes(getProfile());
+const allRoutes = buildLinkRoutes(getProfile());
+// Only a link whose site can be shown in the window has a page; the others open in a new tab.
+const routes = allRoutes.filter((route) => canEmbed(route.url, route.embed));
+const noPageRoutes = allRoutes.filter((route) => !canEmbed(route.url, route.embed));
 
 /** The links of the fixture: one the window may frame and one that refuses to be framed. */
 const fixtureLinks = `
@@ -96,23 +99,24 @@ describe("the pages for the real external links (/links/<slug>/)", () => {
     for (const route of routes) expect(otherSites(pageOf(route)), route.slug).toEqual([route.url]);
   });
 
-  it("show a frame for exactly the links that may be framed, and none for the others", () => {
+  it("show the page in a frame", () => {
     for (const route of routes) {
       const frames = tags(pageOf(route), "iframe");
-      if (canEmbed(route.url, route.embed)) {
-        expect(frames, route.slug).toHaveLength(1);
-        expect(attribute(frames[0] ?? "", "src"), route.slug).toBe(route.url);
-      } else {
-        expect(frames, route.slug).toHaveLength(0);
-        expect(pageOf(route), route.slug).toContain("This page cannot be displayed in this window");
-      }
+      expect(frames, route.slug).toHaveLength(1);
+      expect(attribute(frames[0] ?? "", "src"), route.slug).toBe(route.url);
     }
   });
 
-  it("never show a frame for a link marked embed: false in the content file", () => {
-    for (const route of routes.filter((entry) => entry.embed === false)) {
-      expect(pageOf(route), route.slug).not.toContain("<iframe");
-    }
+  it("are built for exactly the links whose site can be shown, and for no other", async () => {
+    const built = (await site.listFiles("links")).sort();
+    expect(built).toEqual(routes.map((route) => route.slug).sort());
+    for (const route of noPageRoutes) expect(built, route.slug).not.toContain(route.slug);
+  });
+
+  it("are the pages the script is told about, in the same order", async () => {
+    const home = await site.readFileText("index.html");
+    const listed = (/ data-link-routes="([^"]*)"/.exec(home)?.[1] ?? "").split(" ").filter(Boolean);
+    expect(listed).toEqual(routes.map((route) => route.path));
   });
 });
 
@@ -160,30 +164,14 @@ describe("a link page for a site that may be framed (fixture content)", () => {
   });
 });
 
-describe("a link page for a site that refuses to be framed (fixture content)", () => {
-  let html = "";
-  beforeAll(async () => {
+describe("a link whose site refuses to be framed (fixture content)", () => {
+  it("gets no page, and is not listed for the script", async () => {
     expect(fixture.ok, fixture.stderr).toBe(true);
-    html = await fixture.readFileText("links/blocked-sample/index.html");
-  });
-
-  it("has no frame, and says which site refuses", () => {
-    expect(html).not.toContain("<iframe");
-    expect(html).toContain("This page cannot be displayed in this window");
-    expect(html).toContain("blocked.example.test");
-  });
-
-  it("shows the address and opens a new tab only from the visitor's button", () => {
-    const newTab = newTabLinks(html);
-    expect(html).toContain("https://blocked.example.test/page");
-    expect(newTab).toHaveLength(1);
-    expect(attribute(newTab[0] ?? "", "href")).toBe("https://blocked.example.test/page");
-    expect(attribute(newTab[0] ?? "", "rel")).toBe("noopener noreferrer");
-  });
-
-  it("has one h1 then an h2", () => {
-    expect(html.match(/<h1\b/g)?.length).toBe(1);
-    expect(html.match(/<h2\b/g)?.length).toBe(1);
+    await expect(fixture.readFileText("links/blocked-sample/index.html")).rejects.toThrow();
+    const home = await fixture.readFileText("index.html");
+    const listed = (/ data-link-routes="([^"]*)"/.exec(home)?.[1] ?? "").split(" ").filter(Boolean);
+    expect(listed).toContain("/links/framed-sample/");
+    expect(listed.some((path) => path.includes("blocked"))).toBe(false);
   });
 });
 

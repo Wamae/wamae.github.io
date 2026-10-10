@@ -11,6 +11,7 @@ import { getProfile } from "../content";
 import { buildLinkRoutes, linkRoutePaths } from "../content/link-routes";
 import { buildAddress } from "../shell/address-url";
 import Desktop from "../shell/desktop.astro";
+import { canEmbed } from "../shell/link-kind";
 import type { IconName } from "../components/icon-names";
 import { homePath, startMenuGroups } from "../shell/section-model";
 
@@ -30,7 +31,9 @@ interface Props {
 const { section, address: shownAddress } = Astro.props;
 const { ownerName } = getSiteConfig();
 // The script learns which pages are external links from the page, not from the content file.
-const linkRoutes = linkRoutePaths(buildLinkRoutes(getProfile())).join(" ");
+const linkRoutes = linkRoutePaths(
+  buildLinkRoutes(getProfile()).filter((route) => canEmbed(route.url, route.embed)),
+).join(" ");
 if (Astro.site === undefined) throw new Error("Set `site` in astro.config.mjs to build addresses.");
 const title = section === undefined ? ownerName : `${section.title} - ${ownerName}`;
 const address =
