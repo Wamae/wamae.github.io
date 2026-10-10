@@ -90,30 +90,3 @@ test.describe("a link page that is shown in a frame", () => {
     expect(attempts?.some((attempt) => attempt.startsWith("parent:"))).toBe(true);
   });
 });
-
-test.describe("the cannot-be-displayed page", () => {
-  const blocked = routes.find((route) => !canEmbed(route.url, route.embed));
-  test.skip(blocked === undefined, "the content file has no link that refuses to be framed");
-
-  test("opens a new tab only when the visitor presses the button", async ({ page, context }) => {
-    const target = new URL(blocked?.url ?? "https://example.test/").origin;
-    await context.route(`${target}/**`, (route) =>
-      route.fulfill({ contentType: "text/html", body: "<title>Opened</title><p>ok</p>" }),
-    );
-    const opened: string[] = [];
-    context.on("page", (newPage) => opened.push(newPage.url()));
-    await page.goto(blocked?.path ?? "/");
-    await expect(page.getByRole("heading", { level: 2 })).toHaveText(
-      "This page cannot be displayed in this window",
-    );
-    expect(opened).toEqual([]);
-
-    const [newPage] = await Promise.all([
-      context.waitForEvent("page"),
-      page.getByRole("link", { name: /Open in a new tab/ }).click(),
-    ]);
-
-    expect(newPage.url().startsWith(target)).toBe(true);
-    expect(page.url()).toContain(blocked?.path ?? "/");
-  });
-});

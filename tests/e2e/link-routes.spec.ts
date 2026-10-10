@@ -21,10 +21,11 @@ import {
 const content = load(readFileSync("content/cv.yml", "utf8")) as Parameters<
   typeof buildLinkRoutes
 >[0];
-const routes = buildLinkRoutes(content);
+// Only a link whose site can be shown in the window has a page; the others open in a new tab.
+const allRoutes = buildLinkRoutes(content);
+const routes = allRoutes.filter((route) => canEmbed(route.url, route.embed));
 const first = routes[0] as LinkRoute | undefined;
-const framed = routes.find((route) => canEmbed(route.url, route.embed));
-const blocked = routes.find((route) => !canEmbed(route.url, route.embed));
+const framed = routes[0];
 
 const stub = `<!doctype html><title>Stub</title><h1>Stubbed external page</h1>`;
 const addressBar = (page: Page) => page.getByRole("textbox", { name: "Address" });
@@ -33,7 +34,7 @@ const forward = (page: Page) => page.getByRole("button", { name: "Forward" });
 
 /** Keeps every request to another site off the network. */
 async function stubExternalSites(page: Page) {
-  for (const route of routes) {
+  for (const route of allRoutes) {
     await page.route(`${new URL(route.url).origin}/**`, (request) =>
       request.fulfill({ contentType: "text/html", body: stub }),
     );
@@ -195,26 +196,21 @@ test.describe("pages of external links are routes of the window", () => {
   });
 });
 
-for (const [kind, target] of [
-  ["framed", framed],
-  ["blocked", blocked],
-] as const) {
-  test.describe(`a ${kind} link page`, () => {
-    test.skip(target === undefined, `the content file has no ${kind} link`);
-    const route = target as LinkRoute;
+test.describe("a link page", () => {
+  test.skip(framed === undefined, "the content file has no link that can be shown in the window");
+  const route = framed as LinkRoute;
 
-    test("opens in the window from a link", async ({ page }) => {
-      await stubExternalSites(page);
-      await page.goto("/about/");
-      await markDocument(page);
-      await (await addLink(page, route)).click();
-      await expect(h1(page)).toHaveText(route.label);
-      await expect(addressBar(page)).toHaveValue(route.url);
-      await expect(page.locator("iframe.frame")).toHaveCount(kind === "framed" ? 1 : 0);
-      expect(await marker(page)).toBe("same-document");
-    });
+  test("opens in the window from a link, in a frame", async ({ page }) => {
+    await stubExternalSites(page);
+    await page.goto("/about/");
+    await markDocument(page);
+    await (await addLink(page, route)).click();
+    await expect(h1(page)).toHaveText(route.label);
+    await expect(addressBar(page)).toHaveValue(route.url);
+    await expect(page.locator("iframe.frame")).toHaveCount(1);
+    expect(await marker(page)).toBe("same-document");
   });
-}
+});
 
 // Which links open in the window and which open a new tab depends on the content file (embed: false
 // means "cannot be shown in the window"), so the tests pick links of each kind from it.
