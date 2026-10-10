@@ -1,3 +1,4 @@
+import { canEmbed } from "../shell/link-kind";
 import type { Profile } from "./profile-types";
 
 /** One external link, as a page of this site that shows it inside the browser window. */
@@ -70,4 +71,24 @@ export function buildLinkRoutes(profile: Pick<Profile, "links" | "certifications
 /** The page addresses of the given routes, in the same order. */
 export function linkRoutePaths(routes: readonly LinkRoute[]): string[] {
   return routes.map((route) => route.path);
+}
+
+/** Where a link to an external address goes, and whether it opens in a new tab. */
+export interface LinkTarget {
+  readonly href: string;
+  readonly newTab: boolean;
+}
+
+/**
+ * Decides where a link to `url` should go. A site that may be shown in the browser window goes to its
+ * page of this site. A site that refuses to be shown there opens in a new tab straight away, because
+ * there is nothing to show in the window. An address that is not in the content file has no target,
+ * so nothing can link to it.
+ */
+export function linkTarget(routes: readonly LinkRoute[], url: string): LinkTarget | undefined {
+  const route = routes.find((candidate) => candidate.url === url);
+  if (route === undefined) return undefined;
+  return canEmbed(route.url, route.embed)
+    ? { href: route.path, newTab: false }
+    : { href: route.url, newTab: true };
 }
