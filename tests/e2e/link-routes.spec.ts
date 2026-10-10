@@ -216,27 +216,38 @@ for (const [kind, target] of [
   });
 }
 
-const profileLink = content.links[0];
-const certification = content.certifications.find((entry) => entry.url !== undefined);
+// Which links open in the window and which open a new tab depends on the content file (embed: false
+// means "cannot be shown in the window"), so the tests pick links of each kind from it.
+const profileLinks = content.links;
+const linkedCertifications = content.certifications.filter((entry) => entry.url !== undefined);
+const shownInWindow = (entry: { url?: string; embed?: boolean } | undefined) =>
+  entry?.url !== undefined && canEmbed(entry.url, entry.embed);
+const windowProfileLink = profileLinks.find(shownInWindow);
+const newTabProfileLink = profileLinks.find((entry) => !shownInWindow(entry));
+const windowCertification = linkedCertifications.find(shownInWindow);
+const newTabCertification = linkedCertifications.find((entry) => !shownInWindow(entry));
 const routeFor = (url: string | undefined) => routes.find((entry) => entry.url === url);
 
-test.describe("the links on the Contact and About pages stay in the browser window", () => {
+test.describe("the links on the Contact and About pages", () => {
   test.beforeEach(async ({ page }) => {
     await stubExternalSites(page);
   });
 
-  test("a profile link on Contact opens in the window, with its real address", async ({
+  test("a profile link that can be shown opens in the window, with its real address", async ({
     page,
     context,
   }) => {
-    const route = routeFor(profileLink?.url);
-    test.skip(route === undefined || profileLink === undefined, "the content file has no links");
+    const route = routeFor(windowProfileLink?.url);
+    test.skip(
+      route === undefined,
+      "no profile link in the content file can be shown in the window",
+    );
     const opened: string[] = [];
     context.on("page", (newPage) => opened.push(newPage.url()));
     await page.goto("/contact/");
     await markDocument(page);
 
-    await page.getByRole("link", { name: profileLink?.label ?? "" }).click();
+    await page.getByRole("link", { name: windowProfileLink?.label ?? "" }).click();
 
     await expect(h1(page)).toHaveText(route?.label ?? "");
     await expect(page).toHaveURL(new RegExp(`${route?.path}$`));
@@ -245,18 +256,18 @@ test.describe("the links on the Contact and About pages stay in the browser wind
     expect(opened).toEqual([]);
   });
 
-  test("a certificate link on About opens in the window, with its real address", async ({
+  test("a certificate that can be shown opens in the window, with its real address", async ({
     page,
     context,
   }) => {
-    const route = routeFor(certification?.url);
-    test.skip(route === undefined || certification === undefined, "no certificate has a link");
+    const route = routeFor(windowCertification?.url);
+    test.skip(route === undefined, "no certificate in the content file can be shown in the window");
     const opened: string[] = [];
     context.on("page", (newPage) => opened.push(newPage.url()));
     await page.goto("/about/");
     await markDocument(page);
 
-    await page.getByRole("link", { name: certification?.name ?? "", exact: true }).click();
+    await page.getByRole("link", { name: windowCertification?.name ?? "", exact: true }).click();
 
     await expect(h1(page)).toHaveText(route?.label ?? "");
     await expect(addressBar(page)).toHaveValue(route?.url ?? "");
@@ -264,34 +275,96 @@ test.describe("the links on the Contact and About pages stay in the browser wind
     expect(opened).toEqual([]);
   });
 
-  test("no link on Contact or About leaves the site", async ({ page }) => {
+  test("a profile link that cannot be shown opens in a new tab, and the window stays put", async ({
+    page,
+    context,
+  }) => {
+    test.skip(newTabProfileLink === undefined, "every profile link can be shown in the window");
+    await page.goto("/contact/");
+    await markDocument(page);
+
+    const [newTab] = await Promise.all([
+      context.waitForEvent("page"),
+      page.getByRole("link", { name: newTabProfileLink?.label ?? "" }).click(),
+    ]);
+
+    expect(newTab.url().startsWith(new URL(newTabProfileLink?.url ?? "").origin)).toBe(true);
+    await expect(page).toHaveURL(/\/contact\/$/);
+    await expect(h1(page)).toHaveText("Contact");
+    expect(await marker(page)).toBe("same-document");
+    expect(context.pages()).toHaveLength(2);
+  });
+
+  test("a certificate that cannot be shown opens in a new tab, and the window stays put", async ({
+    page,
+    context,
+  }) => {
+    test.skip(newTabCertification === undefined, "every certificate can be shown in the window");
+    await page.goto("/about/");
+
+    const [newTab] = await Promise.all([
+      context.waitForEvent("page"),
+      page.getByRole("link", { name: newTabCertification?.name ?? "", exact: true }).click(),
+    ]);
+
+    expect(newTab.url().startsWith(new URL(newTabCertification?.url ?? "").origin)).toBe(true);
+    await expect(page).toHaveURL(/\/about\/$/);
+    await expect(h1(page)).toHaveText("About Me");
+  });
+
+  test("the only links to another site are ones that open a new tab, safely", async ({ page }) => {
     for (const path of ["/contact/", "/about/"]) {
       await page.goto(path);
-      const hrefs = await page
-        .locator("main a")
-        .evaluateAll((links) => links.map((link) => link.getAttribute("href") ?? ""));
-      expect(hrefs.length, path).toBeGreaterThan(0);
-      for (const href of hrefs) {
-        expect(/^https?:/i.test(href), `${path} ${href}`).toBe(false);
+      const links = await page.locator("main a").evaluateAll((anchors) =>
+        anchors.map((anchor) => ({
+          href: anchor.getAttribute("href") ?? "",
+          target: anchor.getAttribute("target"),
+          rel: anchor.getAttribute("rel"),
+        })),
+      );
+      expect(links.length, path).toBeGreaterThan(0);
+      for (const link of links) {
+        if (!/^https?:/i.test(link.href)) continue;
+        expect(link.target, `${path} ${link.href}`).toBe("_blank");
+        expect(link.rel, `${path} ${link.href}`).toBe("noopener noreferrer");
       }
     }
   });
 
-  test("without JavaScript a profile link goes to its page in the same tab", async ({
+  test("without JavaScript a certificate that can be shown goes to its page in the same tab", async ({
     browser,
   }) => {
-    const route = routeFor(profileLink?.url);
-    test.skip(route === undefined || profileLink === undefined, "the content file has no links");
+    const route = routeFor(windowCertification?.url);
+    test.skip(route === undefined, "no certificate in the content file can be shown in the window");
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
     await stubExternalSites(page);
 
-    await page.goto("http://127.0.0.1:4399/contact/");
-    await page.getByRole("link", { name: profileLink?.label ?? "" }).click();
+    await page.goto("http://127.0.0.1:4399/about/");
+    await page.getByRole("link", { name: windowCertification?.name ?? "", exact: true }).click();
 
     await expect(page).toHaveURL(new RegExp(`${route?.path}$`));
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(route?.label ?? "");
     expect(context.pages()).toHaveLength(1);
+    await context.close();
+  });
+
+  test("without JavaScript a link that cannot be shown still opens a new tab", async ({
+    browser,
+  }) => {
+    test.skip(newTabProfileLink === undefined, "every profile link can be shown in the window");
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await stubExternalSites(page);
+    await page.goto("http://127.0.0.1:4399/contact/");
+
+    const [newTab] = await Promise.all([
+      context.waitForEvent("page"),
+      page.getByRole("link", { name: newTabProfileLink?.label ?? "" }).click(),
+    ]);
+
+    expect(newTab.url().startsWith(new URL(newTabProfileLink?.url ?? "").origin)).toBe(true);
+    await expect(page).toHaveURL(/\/contact\/$/);
     await context.close();
   });
 });

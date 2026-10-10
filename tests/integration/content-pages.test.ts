@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { findCurrency } from "../../src/content/currency-rule";
 import { industries } from "../../src/content/industries";
-import { buildLinkRoutes } from "../../src/content/link-routes";
+import { buildLinkRoutes, linkTarget } from "../../src/content/link-routes";
 import { getProfile } from "../../src/content/profile";
 import { buildSite, type BuiltSite } from "../support/build-site";
 
@@ -9,6 +9,20 @@ let site: BuiltSite;
 const pages: Record<string, string> = {};
 const profile = getProfile();
 const linkRoutes = buildLinkRoutes(profile);
+/** The attributes of the link whose text is exactly `text`, or an empty string when there is none. */
+const anchorAttributes = (html: string, text: string) =>
+  new RegExp(`<a\\b([^>]*)>\\s*${escapeRegExp(text)}\\s*</a>`).exec(html)?.[1] ?? "";
+const attributeOf = (attributes: string, name: string) =>
+  new RegExp(`\\s${name}="([^"]*)"`).exec(` ${attributes}`)?.[1];
+/** An outside address may only be a link that opens a new tab, safely. */
+const outsideLinksOpenSafely = (html: string) => {
+  for (const match of html.matchAll(/<a\b([^>]*)>/g)) {
+    const attributes = match[1] ?? "";
+    if (!/^https?:/i.test(attributeOf(attributes, "href") ?? "")) continue;
+    expect(attributeOf(attributes, "target"), attributes).toBe("_blank");
+    expect(attributeOf(attributes, "rel"), attributes).toBe("noopener noreferrer");
+  }
+};
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const contentPaths = ["about", "experience", "projects", "contact"] as const;
 
@@ -159,16 +173,24 @@ describe("/contact/", () => {
     expect(mainOf("contact")).toContain('href="mailto:integration@example.invalid"');
   });
 
-  it("links every profile link to its own page of this site, and to no other site", () => {
+  it("opens each profile link where it can be shown: in the window, or in a new tab", () => {
     const html = mainOf("contact");
-    const hrefs = [...html.matchAll(/href="([^"]+)"/g)]
-      .map((m) => m[1])
-      .filter((href) => !href?.startsWith("mailto:"));
-    const expected = profile.links.map(
-      (link) => linkRoutes.find((route) => route.url === link.url)?.path,
-    );
-    expect(hrefs).toEqual(expected);
-    expect(html).not.toMatch(/href="https?:/);
+    for (const link of profile.links) {
+      const target = linkTarget(linkRoutes, link.url);
+      const attributes = anchorAttributes(html, link.label);
+      expect(target, link.label).toBeDefined();
+      expect(attributeOf(attributes, "href"), link.label).toBe(target?.href);
+      expect(attributeOf(attributes, "target"), link.label).toBe(
+        target?.newTab ? "_blank" : undefined,
+      );
+      expect(attributeOf(attributes, "rel"), link.label).toBe(
+        target?.newTab ? "noopener noreferrer" : undefined,
+      );
+    }
+  });
+
+  it("lets only a link that opens a new tab, safely, point at another site", () => {
+    outsideLinksOpenSafely(mainOf("contact"));
   });
 });
 
@@ -252,15 +274,24 @@ describe("whole content", () => {
     }
   });
 
-  it("links every certificate that has a public link to its own page of this site", () => {
+  it("opens each certificate with a public link in the window, or in a new tab if it cannot be shown", () => {
     const withLinks = profile.certifications.filter((c) => c.url !== undefined);
     expect(withLinks.length).toBeGreaterThan(0);
     for (const certification of withLinks) {
-      const path = linkRoutes.find((route) => route.url === certification.url)?.path;
-      expect(path, certification.name).toBeDefined();
-      const link = new RegExp(`<a href="${path}"[^>]*>${escapeRegExp(certification.name)}</a>`);
-      expect(pages["about"], certification.name).toMatch(link);
+      const target = linkTarget(linkRoutes, certification.url ?? "");
+      const attributes = anchorAttributes(mainOf("about"), certification.name);
+      expect(target, certification.name).toBeDefined();
+      expect(attributeOf(attributes, "href"), certification.name).toBe(target?.href);
+      expect(attributeOf(attributes, "target"), certification.name).toBe(
+        target?.newTab ? "_blank" : undefined,
+      );
+      expect(attributeOf(attributes, "rel"), certification.name).toBe(
+        target?.newTab ? "noopener noreferrer" : undefined,
+      );
     }
-    expect(mainOf("about")).not.toMatch(/href="https?:/);
+  });
+
+  it("lets only a link that opens a new tab, safely, point at another site", () => {
+    outsideLinksOpenSafely(mainOf("about"));
   });
 });
