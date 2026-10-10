@@ -5,6 +5,8 @@ export default defineConfig({
     include: ["src/**/*.test.ts", "scripts/**/*.test.mjs", "tests/integration/**/*.test.ts"],
     // Integration tests run a real `astro build`.
     testTimeout: 120_000,
+    // The setup of most integration files also runs `astro build`, so it needs the same time.
+    hookTimeout: 120_000,
     // Every integration file runs `astro build`, and parallel builds collide on the shared
     // `.astro/.prerender` folder, so files run one after another.
     fileParallelism: false,
