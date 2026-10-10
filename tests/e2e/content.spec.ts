@@ -69,13 +69,21 @@ test("About Me shows the summary, skills, education and certifications", async (
     "Certifications",
   ]);
   await expect(main).toContainText("BSc Software Engineering (Cum Laude)");
-  // A certificate with a public link opens in the browser window, so it goes to a page of this site.
+  // A certificate opens in the browser window (a page of this site) or, when its site cannot be shown
+  // there, in a new tab at its real address.
   const certificateLinks = main.getByRole("region", { name: "Certifications" }).getByRole("link");
   expect(await certificateLinks.count()).toBeGreaterThan(0);
-  const hrefs = await certificateLinks.evaluateAll((links) =>
-    links.map((link) => link.getAttribute("href") ?? ""),
+  const links = await certificateLinks.evaluateAll((anchors) =>
+    anchors.map((anchor) => ({
+      href: anchor.getAttribute("href") ?? "",
+      target: anchor.getAttribute("target"),
+    })),
   );
-  for (const href of hrefs) expect(href).toMatch(/^\/links\/[a-z0-9]+(-[a-z0-9]+)*\/$/);
+  for (const link of links) {
+    if (link.href.startsWith("/links/"))
+      expect(link.href).toMatch(/^\/links\/[a-z0-9]+(-[a-z0-9]+)*\/$/);
+    else expect(link).toEqual({ href: expect.stringMatching(/^https:\/\//), target: "_blank" });
+  }
 });
 
 test("Contact shows the configured email and the public links", async ({ page }) => {

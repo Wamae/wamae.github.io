@@ -188,14 +188,14 @@ describe("a link page for a site that refuses to be framed (fixture content)", (
 });
 
 describe("the rest of the site", () => {
-  it("has no link that opens a new tab outside the link pages", async () => {
+  // About and Contact have links to other sites that open a new tab (checked in content-pages.test.ts).
+  // No other page may open a new tab.
+  it("has no link that opens a new tab on the other pages", async () => {
     const names = [
       "index.html",
       "404.html",
-      "about/index.html",
       "experience/index.html",
       "projects/index.html",
-      "contact/index.html",
       "program-manager/index.html",
       "file-manager/index.html",
     ];
