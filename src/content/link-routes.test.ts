@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildLinkRoutes, linkRoutePaths, slugify } from "./link-routes";
+import { buildLinkRoutes, linkRoutePaths, linkTarget, slugify } from "./link-routes";
 import { getProfile } from "./profile";
 
 describe("slugify", () => {
@@ -126,6 +126,43 @@ describe("linkRoutePaths", () => {
       "/links/course-a/",
       "/links/course-b/",
     ]);
+  });
+});
+
+describe("linkTarget", () => {
+  const routes = buildLinkRoutes(profile);
+
+  it("sends a site that may be shown in the window to its page of this site", () => {
+    expect(linkTarget(routes, "https://example.org/a")).toEqual({
+      href: "/links/course-a/",
+      newTab: false,
+    });
+    expect(linkTarget(routes, "https://www.kaggle.com/someone")).toEqual({
+      href: "/links/kaggle/",
+      newTab: false,
+    });
+  });
+
+  it("opens a site marked embed: false in a new tab, at its real address", () => {
+    expect(linkTarget(routes, "https://github.com/someone")).toEqual({
+      href: "https://github.com/someone",
+      newTab: true,
+    });
+  });
+
+  it("has no target for an address that is not in the content file", () => {
+    expect(linkTarget(routes, "https://evil.example/")).toBeUndefined();
+    expect(linkTarget(routes, "")).toBeUndefined();
+    expect(linkTarget([], "https://example.org/a")).toBeUndefined();
+  });
+
+  it("never sends a link to a page that does not exist", () => {
+    const paths = new Set(linkRoutePaths(routes));
+    for (const route of routes) {
+      const target = linkTarget(routes, route.url);
+      expect(target, route.slug).toBeDefined();
+      if (target?.newTab === false) expect(paths.has(target.href), route.slug).toBe(true);
+    }
   });
 });
 
