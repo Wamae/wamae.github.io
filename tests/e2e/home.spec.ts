@@ -20,6 +20,14 @@ test("the desktop loads with the owner name, icons, taskbar and no browser windo
   await expect(page.locator("#browser")).toHaveCount(0);
 });
 
+test("the welcome window tells visitors how to open a folder", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator("#welcome")).toContainText(
+    "Welcome. Open a folder on the desktop, or use the Start menu, to see a section. Double click to open a folder.",
+  );
+});
+
 test("the skip link jumps to the main content", async ({ page }) => {
   await page.goto("/");
 
