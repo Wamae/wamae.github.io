@@ -71,6 +71,22 @@ After the desktop appears, each section (About Me, Work Experience, Projects, Co
 - Without JavaScript there is no Minimize or Maximize button, Close is a plain link to the desktop, and the window keeps its default size with its content scrolling inside. The script shows its buttons only after it has set up everything, so a failure leaves the plain link and nothing dead. The state is not saved: after a reload the window is open, at normal size, showing the section in the address.
 - The site is served from the root of its origin, so `site` in `astro.config.mjs` must not have a base path.
 
+### Links to other sites
+
+A link on About Me or Contact to another site opens where it can be shown:
+
+- **In the browser window** when that site allows being shown inside another page. The link goes to a page of this site, `/links/<name>/`, that shows the real address in the window's address bar and the page in a frame. A notice above the frame says that if the page stays blank or shows an error the site does not allow it, that the address bar does not change when you follow links inside the frame, and gives an "Open in a new tab" button. Back, Forward, refresh and the zoom animation work as for any section.
+- **In a new tab, straight away** when the site refuses to be shown in a frame (GitHub, LinkedIn, Medium, X/Twitter, Kaggle, edX, Credly, Acclaim, DataCamp and Udemy at the time of writing). There is no notice page in between. These links carry `target="_blank"` and `rel="noopener noreferrer"`. They are the only links on the site that open a new tab, apart from the notice button above.
+- The email link is a normal `mailto:` link: it opens your mail program and no browser tab.
+
+A page cannot tell whether a site refused to be framed, so the choice is made per link in `content/cv.yml`: a link or certification with `embed: false` opens in a new tab, and one without it opens in the window. If a page you left in the window stays blank, add `embed: false` to it.
+
+How it is kept safe:
+
+- Only addresses written in `content/cv.yml` can be shown. The pages are built from that file, and there is no way to pass an address in the web address, so the window cannot be pointed at any other site.
+- The frame is sandboxed: scripts, the framed site's own cookies and forms are allowed, but pop-ups, dialogs, downloads and moving the window are not. It sends no referrer and asks for no browser permissions (camera, location and so on).
+- Without JavaScript a link that opens in the window goes to its page in the same tab, and a link that opens a new tab still does.
+
 ### Animations
 
 All animations are decorative extras. Nothing waits for them, none takes focus, and the site works the same with them off. They are written in plain CSS and TypeScript with the browser's own Web Animations API and Canvas 2D, with no library.

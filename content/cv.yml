@@ -43,11 +43,12 @@
 #     asterisks. A misplaced marker fails the build.
 #
 # LINKS (certification url and links below): https:// addresses only.
-#   - A link opens inside the site's own browser window, never in a new tab. Many sites
-#     forbid being shown inside another page. Add embed: false to a link or certification
-#     whose site does that (GitHub, LinkedIn, Medium and the others below): the window then
-#     says so and offers a button to open it in a new tab. Leave embed out to try to show
-#     the page in the window. It must be true or false.
+#   - A link whose site can be shown inside the site's own browser window opens there. Many
+#     sites forbid being shown inside another page. Add embed: false to a link or
+#     certification whose site does that (GitHub, LinkedIn, Medium and the others below):
+#     it then opens in a new tab straight away. Leave embed out to show the page in the
+#     window. If a page left in the window stays blank, add embed: false to it. The value
+#     must be true or false.
 # Every id is lowercase words joined by hyphens and must be unique.
 # =============================================================================
 
