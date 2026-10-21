@@ -28,7 +28,7 @@
     "@commitlint/config-conventional": "21.2.3",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.63.0",
-    "astro": "7.3.6",
+    "astro": "7.4.0",
     "eslint": "10.12.0",
     "eslint-plugin-astro": "3.2.1",
     "prettier": "3.9.9",
